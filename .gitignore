@@ -10,3 +10,22 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# node modules
+node_modules
+
+# builds
+/build
+/internal/static/static_gen.go
+/internal/migrations/migrations_gen.go
+/static/logo
+/static/static
+/static/swagger/*.json
+/static/index.html
+/static/asset-manifest.json
+/static/service-worker.js
+/static/manifest.json
+/static/icon.png
+/static/precache-manifest.*.js
+/ui/build
+/docs/public

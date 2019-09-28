@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+
+// DeviceService is the service managing the devices.
+service DeviceService {
+    // Create creates the given device.
+    rpc Create(CreateDeviceRequest) returns (google.protobuf.Empty) {
+        option(google.api.http) = {
+            post: "/api/devices"
+            body: "*"
+        };
+    }
+
+    // Get returns the device matching the given id.
+    rpc Get(DeviceRequest) returns (GetDeviceResponse) {
+        option (google.api.http) = {
+            get: "/api/devices/{id}"
+        };
+    }
+
+    // Get returns the device matching the given id.
+    rpc GetBySerialNumber(DeviceBySerialNumberRequest) returns (GetDeviceResponse) {
+      option (google.api.http) = {
+          get: "/api/devices/by-serial/{serial_number}"
+      };
+    }
+
+    // List returns the available devices.
+    rpc List(ListDeviceRequest) returns (ListDeviceResponse) {
+        option (google.api.http) = {
+            get: "/api/devices"
+        };
+    }
+
+    // Delete deletes the device matching the given id.
+    rpc Delete(DeviceRequest) returns (google.protobuf.Empty) {
+      option (google.api.http) = {
+          delete: "/api/devices/{id}"
+      };
+    }
+
+    // Update updates the device matching the given id.
+    rpc Update(UpdateDeviceRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            put: "/api/devices/{id}"
+            body: "*"
+        };
+    }
+
+}
+
+message GetDeviceResponse {
+  // Device ID.
+  int64 id = 1 [json_name = "id"];
+
+  // ID of the owner user.
+  //int64 user_id = 2 [json_name = "userID"];
+
+  // The device's serial number.
+  string serial_number = 3 [json_name = "serialNumber"];
+  
+  // The device's firmware version.
+  string firmware_version = 4 [json_name = "firmwareVersion"];
+
+  // Registered at timestamp.
+  google.protobuf.Timestamp registered_at = 5 [json_name = "registeredAt"];
+}
+
+message CreateDeviceRequest {
+  // ID of the owner user.
+  //int64 user_id = 1 [json_name = "userID"];
+
+  // The device's serial number.
+  string serial_number = 2 [json_name = "serialNumber"];
+  
+  // The device's firmware version.
+  string firmware_version = 3 [json_name = "firmwareVersion"];
+}
+
+message UpdateDeviceRequest {
+  // Device ID.
+  int64 id = 1 [json_name = "id"];
+
+  // ID of the owner user.
+  //int64 user_id = 2 [json_name = "userID"];
+
+  // The device's serial number.
+  string serial_number = 3 [json_name = "serialNumber"];
+  
+  // The device's firmware version.
+  string firmware_version = 4 [json_name = "firmwareVersion"];
+}
+
+message DeviceRequest {
+  // The device's id.
+  int64 id = 1 [json_name = "id"];
+}
+
+message DeviceBySerialNumberRequest {
+  // The device's id.
+  string serial_number = 1 [json_name = "serialNumber"];
+}
+
+//For now, this doesn't need a user id so it's empty.
+message ListDeviceRequest {
+  // Max amount of devices to retrieve.
+  int64 limit = 1 [json_name = "limit"];
+  // Offset for retrieving devices.
+  int64 offset = 2 [json_name = "offset"];
+}
+
+message ListDeviceResponse {
+  int64 total_count = 1 [json_name = "totalCount"];
+  repeated GetDeviceResponse devices = 2 [json_name = "devices"];
+}
+
