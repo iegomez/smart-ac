@@ -30,14 +30,18 @@ func (d Device) Validate() error {
 }
 
 //CreateDevice creates a new device.
-func CreateDevice(db *sqlx.DB, device *Device) error {
+func CreateDevice(db *sqlx.DB, d *Device) error {
 
-	err := db.Get(&device.ID,
+	if err := d.Validate(); err != nil {
+		return errors.Wrap(err, "validate error")
+	}
+
+	err := db.Get(&d.ID,
 		`insert into device(serial_number, registered_at, firmware_version)
 		values($1, $2, $3) returning id`,
-		device.SerialNumber,
+		d.SerialNumber,
 		time.Now(),
-		device.FirmwareVersion,
+		d.FirmwareVersion,
 	)
 
 	if err != nil {
@@ -45,8 +49,8 @@ func CreateDevice(db *sqlx.DB, device *Device) error {
 	}
 
 	log.WithFields(log.Fields{
-		"id":            device.ID,
-		"serial number": device.SerialNumber,
+		"id":            d.ID,
+		"serial number": d.SerialNumber,
 	}).Info("device created")
 	return nil
 
@@ -80,7 +84,7 @@ func GetDeviceBySerialNumber(db *sqlx.DB, serialNumber string) (Device, error) {
 	return device, nil
 }
 
-//GetDeviceCount return the count of all devices.
+//GetDeviceCount returns the count of all devices.
 func GetDeviceCount(db *sqlx.DB) (int64, error) {
 	var count int64
 	err := db.Get(&count, `select count(id) from device`)

@@ -1,0 +1,293 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "datum.proto",
+    "version": "version not set"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/data": {
+      "get": {
+        "summary": "List returns the available data.",
+        "operationId": "List",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiListDataResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "description": "Max amount of data to retrieve.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "offset",
+            "description": "Offset for retrieving data.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "startDate",
+            "description": "Start date.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "endDate",
+            "description": "End date.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "DatumService"
+        ]
+      },
+      "post": {
+        "summary": "Create creates the given datum.",
+        "operationId": "Create",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiCreateDataRequest"
+            }
+          }
+        ],
+        "tags": [
+          "DatumService"
+        ]
+      }
+    },
+    "/api/data/{id}": {
+      "get": {
+        "summary": "Get returns the datum matching the given id.",
+        "operationId": "Get",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiGetDatumResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "The datum's id.",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DatumService"
+        ]
+      },
+      "delete": {
+        "summary": "Delete deletes the datum matching the given id.",
+        "operationId": "Delete",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "The datum's id.",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DatumService"
+        ]
+      }
+    },
+    "/api/devices/{device_id}/data": {
+      "get": {
+        "summary": "ListForDevice returns the available data for a given device id.",
+        "operationId": "ListForDevice",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiListDataResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "limit",
+            "description": "Max amount of data to retrieve.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "offset",
+            "description": "Offset for retrieving data.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "startDate",
+            "description": "Start date.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "endDate",
+            "description": "End date.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "DatumService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiCreateDataRequest": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiDatum"
+          }
+        }
+      }
+    },
+    "apiDatum": {
+      "type": "object",
+      "properties": {
+        "deviceID": {
+          "type": "string",
+          "format": "int64",
+          "description": "Device ID."
+        },
+        "temperature": {
+          "type": "number",
+          "format": "double"
+        },
+        "carbonMonoxide": {
+          "type": "number",
+          "format": "double"
+        },
+        "airHumidity": {
+          "type": "number",
+          "format": "double"
+        },
+        "healthStatus": {
+          "type": "string"
+        }
+      }
+    },
+    "apiGetDatumResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "description": "Datum ID."
+        },
+        "deviceID": {
+          "type": "string",
+          "format": "int64",
+          "description": "Device ID."
+        },
+        "temperature": {
+          "type": "number",
+          "format": "double"
+        },
+        "carbonMonoxide": {
+          "type": "number",
+          "format": "double"
+        },
+        "airHumidity": {
+          "type": "number",
+          "format": "double"
+        },
+        "healthStatus": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Created at timestamp."
+        }
+      }
+    },
+    "apiListDataResponse": {
+      "type": "object",
+      "properties": {
+        "totalCount": {
+          "type": "string",
+          "format": "int64"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiGetDatumResponse"
+          }
+        }
+      }
+    }
+  }
+}

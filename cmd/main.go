@@ -63,7 +63,6 @@ func importConf(filename string) error {
 	if _, err := toml.DecodeFile(filename, &config.C); err != nil {
 		return err
 	}
-	log.Infof("config: %#v\n", config.C)
 	return nil
 }
 

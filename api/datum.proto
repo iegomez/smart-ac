@@ -1,0 +1,119 @@
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+
+// DatumService is the service managing the data.
+service DatumService {
+    // Create creates the given datum.
+    rpc Create(CreateDataRequest) returns (google.protobuf.Empty) {
+        option(google.api.http) = {
+            post: "/api/data"
+            body: "*"
+        };
+    }
+
+    // Get returns the datum matching the given id.
+    rpc Get(DatumRequest) returns (GetDatumResponse) {
+        option (google.api.http) = {
+            get: "/api/data/{id}"
+        };
+    }
+
+    // List returns the available data.
+    rpc List(ListDataRequest) returns (ListDataResponse) {
+        option (google.api.http) = {
+            get: "/api/data"
+        };
+    }
+
+    // ListForDevice returns the available data for a given device id.
+    rpc ListForDevice(ListDataForDeviceRequest) returns (ListDataResponse) {
+      option (google.api.http) = {
+          get: "/api/devices/{device_id}/data"
+      };
+  }
+
+    // Delete deletes the datum matching the given id.
+    rpc Delete(DatumRequest) returns (google.protobuf.Empty) {
+      option (google.api.http) = {
+          delete: "/api/data/{id}"
+      };
+    }
+
+}
+
+message GetDatumResponse {
+  // Datum ID.
+  int64 id = 1 [json_name = "id"];
+
+  // Device ID.
+  int64 device_id = 2 [json_name = "deviceID"];
+
+  double temperature = 3 [json_name = "temperature"];
+
+  double carbon_monoxide = 4 [json_name = "carbonMonoxide"];
+
+  double air_humidity = 5 [json_name = "airHumidity"];
+
+  string health_status = 6 [json_name = "healthStatus"];
+
+  // Created at timestamp.
+  google.protobuf.Timestamp created_at = 7 [json_name = "createdAt"];
+}
+
+message Datum {
+  // Device ID.
+  int64 device_id = 1 [json_name = "deviceID"];
+
+  double temperature = 2 [json_name = "temperature"];
+
+  double carbon_monoxide = 3 [json_name = "carbonMonoxide"];
+
+  double air_humidity = 4 [json_name = "airHumidity"];
+
+  string health_status = 5 [json_name = "healthStatus"];
+}
+
+message CreateDataRequest {
+  repeated Datum data = 1 [json_name = "data"];
+}
+
+
+message DatumRequest {
+  // The datum's id.
+  int64 id = 1 [json_name = "id"];
+}
+
+message ListDataRequest {
+  // Max amount of data to retrieve.
+  int64 limit = 1 [json_name = "limit"];
+  // Offset for retrieving data.
+  int64 offset = 2 [json_name = "offset"];
+  //Start date.
+  google.protobuf.Timestamp start_date = 3 [json_name = "startDate"];
+  //End date.
+  google.protobuf.Timestamp end_date = 4 [json_name = "endDate"];
+}
+
+message ListDataForDeviceRequest {
+  int64 device_id = 1 [json_name = "deviceID"];
+  // Max amount of data to retrieve.
+  int64 limit = 2 [json_name = "limit"];
+  // Offset for retrieving data.
+  int64 offset = 3 [json_name = "offset"];
+  //Start date.
+  google.protobuf.Timestamp start_date = 4 [json_name = "startDate"];
+  //End date.
+  google.protobuf.Timestamp end_date = 5 [json_name = "endDate"];
+}
+
+message ListDataResponse {
+  int64 total_count = 1 [json_name = "totalCount"];
+  repeated GetDatumResponse data = 2 [json_name = "data"];
+}
+
