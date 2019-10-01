@@ -24,6 +24,13 @@ service DeviceService {
         };
     }
 
+    // GetDeviceKey returns the device's api key'.
+    rpc GetAPIKey(DeviceRequest) returns (GetDeviceKeyResponse) {
+      option (google.api.http) = {
+          get: "/api/devices/{id}/key"
+      };
+  }
+
     // Get returns the device matching the given id.
     rpc GetBySerialNumber(DeviceBySerialNumberRequest) returns (GetDeviceResponse) {
       option (google.api.http) = {
@@ -36,6 +43,13 @@ service DeviceService {
         option (google.api.http) = {
             get: "/api/devices"
         };
+    }
+
+    // ListAll returns all the available devices (used at UI filtering).
+    rpc ListAll(google.protobuf.Empty) returns (ListDeviceResponse) {
+      option (google.api.http) = {
+          get: "/api/all-devices"
+      };
     }
 
     // Delete deletes the device matching the given id.
@@ -53,8 +67,17 @@ service DeviceService {
         };
     }
 
+    // UpdateAPIKey updates the device's api key.
+    rpc UpdateAPIKey(DeviceRequest) returns (GetDeviceKeyResponse) {
+      option (google.api.http) = {
+          put: "/api/devices/{id}/key"
+          body: "*"
+      };
+    }
+
 }
 
+//Holds a device response for the UI.
 message GetDeviceResponse {
   // Device ID.
   int64 id = 1 [json_name = "id"];
@@ -72,6 +95,13 @@ message GetDeviceResponse {
   google.protobuf.Timestamp registered_at = 5 [json_name = "registeredAt"];
 }
 
+//Return the device's newly generated key.
+message GetDeviceKeyResponse {
+  //Api key.
+  string api_key = 1 [json_name = "apiKey"];
+}
+
+//Request to create a device.
 message CreateDeviceRequest {
   // ID of the owner user.
   //int64 user_id = 1 [json_name = "userID"];
@@ -83,6 +113,7 @@ message CreateDeviceRequest {
   string firmware_version = 3 [json_name = "firmwareVersion"];
 }
 
+//Request to update the device.
 message UpdateDeviceRequest {
   // Device ID.
   int64 id = 1 [json_name = "id"];
@@ -97,13 +128,15 @@ message UpdateDeviceRequest {
   string firmware_version = 4 [json_name = "firmwareVersion"];
 }
 
+//Request to address a given device.
 message DeviceRequest {
   // The device's id.
   int64 id = 1 [json_name = "id"];
 }
 
+//Request device by serial number.
 message DeviceBySerialNumberRequest {
-  // The device's id.
+  // The device's serial number.
   string serial_number = 1 [json_name = "serialNumber"];
 }
 
@@ -115,8 +148,11 @@ message ListDeviceRequest {
   int64 offset = 2 [json_name = "offset"];
 }
 
+//List devices message.
 message ListDeviceResponse {
+  //Total amount of devices.
   int64 total_count = 1 [json_name = "totalCount"];
-  repeated GetDeviceResponse devices = 2 [json_name = "devices"];
+  //Devices found given the request restrictions.
+  repeated GetDeviceResponse result = 2 [json_name = "result"];
 }
 

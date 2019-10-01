@@ -50,7 +50,7 @@
       function addApiKeyAuthorization(){
         var key = encodeURIComponent($('#input_apiKey')[0].value);
         if(key && key.trim() != "") {
-            window.swaggerUi.api.clientAuthorizations.add("key", new SwaggerClient.ApiKeyAuthorization("Grpc-Metadata-Authorization", 'Bearer ' + key, "header"));
+            window.swaggerUi.api.clientAuthorizations.add("key", new SwaggerClient.ApiKeyAuthorization("Authorization", 'Apikey ' + key, "header"));
             console.log("added key " + key);
         }
       }
@@ -65,9 +65,9 @@
   <div id='header'>
     <div class="swagger-ui-wrap">
       <span id="logo">Smart AC REST API</span>
-      <!--<form id='api_selector'>
-        <div class='input'><input placeholder="JWT TOKEN" id="input_apiKey" name="apiKey" type="text"/></div>
-      </form>-->
+      <form id='api_selector'>
+        <div class='input'><input placeholder="Device Api Key" id="input_apiKey" name="apiKey" type="text"/></div>
+      </form>
     </div>
   </div>
 

@@ -24,13 +24,6 @@ test: internal/statics internal/migrations
 	@go vet $(PKGS)
 	@go test -p 1 -v $(PKGS) -failfast -cover -coverprofile coverage.out -timeout 45m
 
-dist: ui/build internal/statics internal/migrations
-	@goreleaser
-	mkdir -p dist/upload/tar
-	mkdir -p dist/upload/deb
-	mv dist/*.tar.gz dist/upload/tar
-	mv dist/*.deb dist/upload/deb
-
 ui/build:
 	@echo "Building ui"
 	@cd ui && npm run build

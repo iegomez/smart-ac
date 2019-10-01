@@ -59,6 +59,22 @@ func (a *DeviceAPI) Get(ctx context.Context, req *pb.DeviceRequest) (*pb.GetDevi
 
 }
 
+// GetAPIKey retrieves a device's API key'.
+func (a *DeviceAPI) GetAPIKey(ctx context.Context, req *pb.DeviceRequest) (*pb.GetDeviceKeyResponse, error) {
+
+	d, err := storage.GetDevice(storage.DB(), req.Id)
+	if err != nil {
+		return nil, helpers.ErrToRPCError(err)
+	}
+
+	key := &pb.GetDeviceKeyResponse{
+		ApiKey: d.APIKey,
+	}
+
+	return key, nil
+
+}
+
 // GetBySerialNumber retrieves a device given a serial number.
 func (a *DeviceAPI) GetBySerialNumber(ctx context.Context, req *pb.DeviceBySerialNumberRequest) (*pb.GetDeviceResponse, error) {
 
@@ -97,7 +113,7 @@ func (a *DeviceAPI) List(ctx context.Context, req *pb.ListDeviceRequest) (*pb.Li
 
 	resp := &pb.ListDeviceResponse{
 		TotalCount: count,
-		Devices:    make([]*pb.GetDeviceResponse, len(devices)),
+		Result:     make([]*pb.GetDeviceResponse, len(devices)),
 	}
 
 	for i, d := range devices {
@@ -110,7 +126,42 @@ func (a *DeviceAPI) List(ctx context.Context, req *pb.ListDeviceRequest) (*pb.Li
 		if err != nil {
 			return nil, helpers.ErrToRPCError(err)
 		}
-		resp.Devices[i] = device
+		resp.Result[i] = device
+	}
+
+	return resp, nil
+
+}
+
+// ListAll retrieves all devices.
+func (a *DeviceAPI) ListAll(ctx context.Context, req *empty.Empty) (*pb.ListDeviceResponse, error) {
+
+	count, err := storage.GetDeviceCount(storage.DB())
+	if err != nil {
+		return nil, err
+	}
+
+	devices, err := storage.ListDevices(storage.DB(), count, 0)
+	if err != nil {
+		return nil, helpers.ErrToRPCError(err)
+	}
+
+	resp := &pb.ListDeviceResponse{
+		TotalCount: count,
+		Result:     make([]*pb.GetDeviceResponse, len(devices)),
+	}
+
+	for i, d := range devices {
+		device := &pb.GetDeviceResponse{
+			Id:              d.ID,
+			SerialNumber:    d.SerialNumber,
+			FirmwareVersion: d.FirmwareVersion,
+		}
+		device.RegisteredAt, err = ptypes.TimestampProto(d.RegisteredAt)
+		if err != nil {
+			return nil, helpers.ErrToRPCError(err)
+		}
+		resp.Result[i] = device
 	}
 
 	return resp, nil
@@ -129,6 +180,17 @@ func (a *DeviceAPI) Update(ctx context.Context, req *pb.UpdateDeviceRequest) (*e
 		return nil, helpers.ErrToRPCError(err)
 	}
 	return &empty.Empty{}, nil
+}
+
+//UpdateAPIKey updates the given device.
+func (a *DeviceAPI) UpdateAPIKey(ctx context.Context, req *pb.DeviceRequest) (*pb.GetDeviceKeyResponse, error) {
+	key, err := storage.UpdateDeviceKey(storage.DB(), req.Id)
+	if err != nil {
+		return nil, helpers.ErrToRPCError(err)
+	}
+	return &pb.GetDeviceKeyResponse{
+		ApiKey: key,
+	}, nil
 }
 
 //Delete deletes a device given an id.

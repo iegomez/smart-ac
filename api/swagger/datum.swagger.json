@@ -206,38 +206,44 @@
     "apiCreateDataRequest": {
       "type": "object",
       "properties": {
+        "serialNumber": {
+          "type": "string",
+          "description": "Device's serial number."
+        },
         "data": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/apiDatum"
-          }
+          },
+          "description": "Array of data."
         }
-      }
+      },
+      "description": "To create data a device must send a request with it's serial number and the array of data."
     },
     "apiDatum": {
       "type": "object",
       "properties": {
-        "deviceID": {
-          "type": "string",
-          "format": "int64",
-          "description": "Device ID."
-        },
         "temperature": {
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "description": "Temperature as a float64."
         },
         "carbonMonoxide": {
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "description": "Carbon monoxide as a float 64."
         },
         "airHumidity": {
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "description": "Air humidity percentage as a float64 between 0.0 and 1.0 included."
         },
         "healthStatus": {
-          "type": "string"
+          "type": "string",
+          "description": "UTF8 string of max 149 characters."
         }
-      }
+      },
+      "description": "How a datum sent by a device looks like."
     },
     "apiGetDatumResponse": {
       "type": "object",
@@ -254,38 +260,49 @@
         },
         "temperature": {
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "description": "Temperature as a float64."
         },
         "carbonMonoxide": {
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "description": "Carbon monoxide as a float 64."
         },
         "airHumidity": {
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "description": "Air humidity percentage as a float64 between 0.0 and 1.0 included."
         },
         "healthStatus": {
-          "type": "string"
+          "type": "string",
+          "description": "UTF8 string of max 149 characters."
         },
         "createdAt": {
           "type": "string",
           "format": "date-time",
           "description": "Created at timestamp."
+        },
+        "serialNumber": {
+          "type": "string",
+          "description": "The device's serial number."
         }
-      }
+      },
+      "description": "How a datum to be presented to the UI looks like."
     },
     "apiListDataResponse": {
       "type": "object",
       "properties": {
         "totalCount": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "description": "Total amount of data available."
         },
-        "data": {
+        "result": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/apiGetDatumResponse"
-          }
+          },
+          "description": "The data returned following the request's restrictions."
         }
       }
     }

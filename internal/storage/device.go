@@ -1,7 +1,9 @@
 package storage
 
 import (
+	"crypto/rand"
 	"database/sql"
+	"encoding/hex"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -16,6 +18,7 @@ type Device struct {
 	SerialNumber    string    `db:"serial_number"`
 	RegisteredAt    time.Time `db:"registered_at"`
 	FirmwareVersion string    `db:"firmware_version"`
+	APIKey          string    `db:"api_key"`
 }
 
 // Validate validates the device data.
@@ -36,12 +39,19 @@ func CreateDevice(db *sqlx.DB, d *Device) error {
 		return errors.Wrap(err, "validate error")
 	}
 
-	err := db.Get(&d.ID,
-		`insert into device(serial_number, registered_at, firmware_version)
-		values($1, $2, $3) returning id`,
+	//Generate an api key.
+	key, err := GenerateRandomKey()
+	if err != nil {
+		return errors.Wrap(err, "generate random key error")
+	}
+
+	err = db.Get(&d.ID,
+		`insert into device(serial_number, registered_at, firmware_version, api_key)
+		values($1, $2, $3, $4) returning id`,
 		d.SerialNumber,
 		time.Now(),
 		d.FirmwareVersion,
+		key,
 	)
 
 	if err != nil {
@@ -52,6 +62,7 @@ func CreateDevice(db *sqlx.DB, d *Device) error {
 		"id":            d.ID,
 		"serial number": d.SerialNumber,
 	}).Info("device created")
+
 	return nil
 
 }
@@ -137,6 +148,40 @@ func UpdateDevice(db *sqlx.DB, d *Device) error {
 	return nil
 }
 
+// UpdateDeviceKey updates the given device's api key.
+func UpdateDeviceKey(db *sqlx.DB, id int64) (string, error) {
+
+	//Generate an api key.
+	key, err := GenerateRandomKey()
+	if err != nil {
+		return "", errors.Wrap(err, "generate random key error")
+	}
+
+	res, err := db.Exec(`
+      update device
+        set api_key = $2
+        where id = $1`,
+		id,
+		key,
+	)
+	if err != nil {
+		return "", handlePSQLError(Update, err, "update error")
+	}
+	ra, err := res.RowsAffected()
+	if err != nil {
+		return "", errors.Wrap(err, "get rows affected error")
+	}
+	if ra == 0 {
+		return "", ErrDoesNotExist
+	}
+
+	log.WithFields(log.Fields{
+		"id": id,
+	}).Info("device updated")
+
+	return key, nil
+}
+
 // DeleteDevice deletes the device matching the given DevEUI.
 func DeleteDevice(db *sqlx.DB, id int64) error {
 	res, err := db.Exec("delete from device where id = $1", id)
@@ -156,4 +201,14 @@ func DeleteDevice(db *sqlx.DB, id int64) error {
 	}).Info("device deleted")
 
 	return nil
+}
+
+// GenerateRandomKey returns a base64 encoded securely generated random string.
+func GenerateRandomKey() (string, error) {
+	b := make([]byte, 16)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(b), nil
 }

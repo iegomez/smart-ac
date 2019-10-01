@@ -1,23 +1,19 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 
-import Table from '@material-ui/core/Table';
-import TablePagination from '@material-ui/core/TablePagination';
-import TableBody from '@material-ui/core/TableBody';
-import TableHead from '@material-ui/core/TableHead';
-import { withStyles } from '@material-ui/core/styles';
-
+import { withStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import TableCell from "@material-ui/core/TableCell";
 import TableRow from "@material-ui/core/TableRow";
-import TableCellLink from "../../components/TableCellLink";
-import Plus from "mdi-material-ui/Plus";
+import Button from '@material-ui/core/Button';
 import TitleBar from "../../components/TitleBar";
 import TitleBarTitle from "../../components/TitleBarTitle";
-import TitleBarButton from "../../components/TitleBarButton";
-import Paper from '@material-ui/core/Paper';
-import theme from '../../theme';
+import Plus from "mdi-material-ui/Plus";
 
-import DeviceStore from '../../stores/DeviceStore';
+import TableCellLink from "../../components/TableCellLink";
+import DataTable from "../../components/DataTable";
+import DeviceStore from "../../stores/DeviceStore";
+import theme from "../../theme";
 
 
 const styles = {
@@ -33,129 +29,60 @@ const styles = {
 };
 
 
-class DeviceItem extends Component {
+class ListDevices extends Component {
   constructor() {
     super();
+    this.getPage = this.getPage.bind(this);
+    this.getRow = this.getRow.bind(this);
   }
 
-  render() {
+  getPage(limit, offset, callbackFunc) {
+    DeviceStore.list(limit, offset, callbackFunc);
+  }
 
-    const device = this.props.device;
+  getRow(obj) {
 
     return(
-
-      <TableRow key={device.id}>
-        <TableCellLink to={`/devices/${device.id}`}>{device.id}</TableCellLink>
-        <TableCell>{device.serialNumber}</TableCell>
-        <TableCell>{device.firmwareVersion}</TableCell>
-        <TableCell>{device.registeredAt}</TableCell>
+      <TableRow key={obj.id}>
+        <TableCellLink to={`/devices/${obj.id}`}>{obj.id}</TableCellLink>
+        <TableCellLink to={`/devices/${obj.id}`}>{obj.serialNumber}</TableCellLink>
+        <TableCell>{obj.firmwareVersion}</TableCell>
+        <TableCell>{obj.registeredAt}</TableCell>
       </TableRow>
-
-    );
-  }
-}
-
-class ListDevices extends Component {
-  constructor(){
-    super();
-    this.state = {
-      count: 0,
-      rowsPerPage: 10,
-      page: 0,
-      loaded: {
-        rows: false,
-      },
-      devices: [],
-    }
-
-    this.listDevices = this.listDevices.bind(this);
-    this.onChangePage = this.onChangePage.bind(this);
-    this.onChangeRowsPerPage = this.onChangeRowsPerPage.bind(this);
-  }
-
-  componentDidMount() {
-    this.listDevices()
-  }
-
-  listDevices() {
-    DeviceStore.list(this.state.rowsPerPage, (this.state.page) * this.state.rowsPerPage, (resp) => {
-      if (resp.totalCount > 0) {
-        this.setState({
-          devices: resp.devices,
-          count: parseInt(resp.totalCount, 10),
-        });
-      }
-    });
-  }
-
-  onChangePage(event, value) {
-    this.setState({
-      page: value,
-    },
-      () => {
-        this.listDevices();
-      }
-    );
-  }
-
-  onChangeRowsPerPage(event) {
-    this.setState({
-      rowsPerPage: event.target.value,
-    },
-      () => {
-        this.listDevices();
-      }
     );
   }
 
   render() {
-
-    const devices = this.state.devices.map((device, i) => <DeviceItem key={i} device={device} />);
-
     return(
-      <Grid container spacing={3}>
-        <TitleBar
-          buttons={[
-            <TitleBarButton
-              key={1}
-              label="Create"
-              icon={<Plus />}
-              to={`/devices/create`}
-            />,
-          ]}
-        >
-        <TitleBarTitle title="Devices" />
-        </TitleBar>
+      <Grid container spacing={4}>
+        <Grid item xs={12} className={this.props.classes.buttons}>
+          <TitleBar>
+          <TitleBarTitle title="Devices" />
+          </TitleBar>
+          <Link to="/data">Go to Data</Link>
+          <Button variant="outlined" className={this.props.classes.button} component={Link} to={`/devices/create`}>
+            <Plus className={this.props.classes.icon} />
+            Create
+          </Button>
+        </Grid>
+        
         <Grid item xs={12}>
-          <Paper className={this.props.classes.root}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell>Serial Number</TableCell>
-                  <TableCell>Firmware Version</TableCell>
-                  <TableCell>Registered At</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {devices}
-              </TableBody>
-            </Table>
-            <TablePagination
-              component="div"
-              count={this.state.count}
-              rowsPerPage={this.state.rowsPerPage}
-              page={this.state.page}
-              onChangePage={this.onChangePage}
-              onChangeRowsPerPage={this.onChangeRowsPerPage}
-            />
-          </Paper>
+          <DataTable
+            header={
+              <TableRow>
+                <TableCell>ID</TableCell>
+                <TableCell>Serial Number</TableCell>
+                <TableCell>Firmware Version</TableCell>
+                <TableCell>Registered At</TableCell>
+              </TableRow>
+            }
+            getPage={this.getPage}
+            getRow={this.getRow}
+          />
         </Grid>
       </Grid>
     );
-
   }
-
 }
 
 export default withStyles(styles)(ListDevices);

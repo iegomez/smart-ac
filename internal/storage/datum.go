@@ -34,11 +34,13 @@ type Datum struct {
 	CreatedAt      time.Time `db:"created_at"`
 }
 
+type DatumWithSerial struct {
+	Datum
+	SerialNumber string `db:"serial_number"`
+}
+
 //Validate checks that a datum is associated to a datum, air humidity is a float in the [0.0, 1.0] range and the health status length is less than 150.
 func (d Datum) Validate() error {
-	if d.DeviceID == 0 {
-		return errors.New("datum must be associated to a datum")
-	}
 	if d.AirHumidity < 0.0 || d.AirHumidity > 1.0 {
 		return errors.New("air humidity must be in [0.0, 1.0]")
 	}
@@ -50,26 +52,26 @@ func (d Datum) Validate() error {
 
 //CreateData adds all given data records to the DB.
 //Since data may be one message or several, we use a common approach of accepting a data slice and bulk insert them, logging any error and continuing to insert the remaining data.
-func CreateData(db *sqlx.DB, data []Datum) error {
+func CreateData(db *sqlx.DB, data []Datum, id int64) error {
 
 	txn, err := db.Begin()
 	if err != nil {
 		return err
 	}
 
-	stmt, err := txn.Prepare(pq.CopyIn("device_id", "temperature", "carbon_monoxide", "air_humidity", "health_status", "created_at"))
+	stmt, err := txn.Prepare(pq.CopyIn("datum", "device_id", "temperature", "carbon_monoxide", "air_humidity", "health_status", "created_at"))
 	if err != nil {
 		return err
 	}
 
 	for _, d := range data {
 		if err := d.Validate(); err != nil {
-			log.Errorf("couldn't insert datum for device %d: %#v\n", d)
+			log.Errorf("couldn't insert datum for device %d: %#v\n", id, d)
 			continue
 		}
-		_, err = stmt.Exec(d.DeviceID, d.Temperature, d.CarbonMonoxide, d.AirHumidity, d.HealthStatus, time.Now())
+		_, err = stmt.Exec(id, d.Temperature, d.CarbonMonoxide, d.AirHumidity, d.HealthStatus, time.Now())
 		if err != nil {
-			log.Errorf("couldn't insert datum for device %d: %#v\n", d)
+			log.Errorf("couldn't insert datum for device %d: %#v\n", id, d)
 		}
 	}
 
@@ -111,9 +113,9 @@ func GetDatum(db *sqlx.DB, id int64) (Datum, error) {
 }
 
 //GetDatumCount returns the count of all data.
-func GetDatumCount(db *sqlx.DB) (int64, error) {
+func GetDatumCount(db *sqlx.DB, startDate, endDate time.Time) (int64, error) {
 	var count int64
-	err := db.Get(&count, `select count(id) from datum`)
+	err := db.Get(&count, `select count(id) from datum where created_at >= $1 and created_at <= $2`, startDate, endDate)
 	if err != nil {
 		return 0, err
 	}
@@ -121,9 +123,9 @@ func GetDatumCount(db *sqlx.DB) (int64, error) {
 }
 
 //ListData retrieves all data.
-func ListData(db *sqlx.DB, limit, offset int64) ([]Datum, error) {
-	var data []Datum
-	err := db.Select(&data, `select * from datum order by created_at desc limit $1 offset $2`, limit, offset)
+func ListData(db *sqlx.DB, startDate, endDate time.Time, limit, offset int64) ([]DatumWithSerial, error) {
+	var data []DatumWithSerial
+	err := db.Select(&data, `select dat.*, dev.serial_number from datum as dat, device as dev where dat.device_id = dev.id and dat.created_at >= $1 and dat.created_at <= $2 order by dat.created_at desc limit $3 offset $4`, startDate, endDate, limit, offset)
 	if err != nil {
 		return nil, handlePSQLError(Select, err, "select error")
 	}
@@ -131,9 +133,9 @@ func ListData(db *sqlx.DB, limit, offset int64) ([]Datum, error) {
 }
 
 //GetDatumCountForDevice returns the count of all data for a given device id.
-func GetDatumCountForDevice(db *sqlx.DB, deviceID int64) (int64, error) {
+func GetDatumCountForDevice(db *sqlx.DB, deviceID int64, startDate, endDate time.Time) (int64, error) {
 	var count int64
-	err := db.Get(&count, `select count(id) from datum where device_id = $1`, deviceID)
+	err := db.Get(&count, `select count(id) from datum where device_id = $1 and created_at >= $2 and created_at <= $3`, deviceID, startDate, endDate)
 	if err != nil {
 		return 0, err
 	}
@@ -141,9 +143,9 @@ func GetDatumCountForDevice(db *sqlx.DB, deviceID int64) (int64, error) {
 }
 
 //ListDataForDevice retrieves all data for a given device id.
-func ListDataForDevice(db *sqlx.DB, deviceID, limit, offset int64) ([]Datum, error) {
+func ListDataForDevice(db *sqlx.DB, deviceID int64, startDate, endDate time.Time, limit, offset int64) ([]Datum, error) {
 	var data []Datum
-	err := db.Select(&data, `select * from datum where device_id = $1 order by created_at desc limit $2 offset $3`, deviceID, limit, offset)
+	err := db.Select(&data, `select * from datum where device_id = $1 and created_at >= $2 and created_at <= $3 order by created_at desc limit $4 offset $5`, deviceID, startDate, endDate, limit, offset)
 	if err != nil {
 		return nil, handlePSQLError(Select, err, "select error")
 	}

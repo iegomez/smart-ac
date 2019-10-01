@@ -15,21 +15,12 @@ class UpdateDevice extends Component {
 
   constructor() {
     super();
-    this.state = {};
     this.onSubmit = this.onSubmit.bind(this);
-  }
-
-  componentWillMount() {
-    DeviceStore.get(this.props.match.params.id, (resp) => {
-      this.setState({
-        device: resp,
-      });
-    });
   }
 
   onSubmit(device) {
     DeviceStore.update(device.id, device.serialNumber, device.firmwareVersion, resp => {
-      this.props.history.push("/");
+      this.props.history.push(`/devices/${device.id}`);
     })
   }
 
@@ -46,7 +37,7 @@ class UpdateDevice extends Component {
               <DeviceForm
                 submitLabel="Update"
                 onSubmit={this.onSubmit}
-                object={this.state.device}
+                object={this.props.device}
               />
             </CardContent>
           </Card>

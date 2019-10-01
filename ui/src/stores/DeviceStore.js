@@ -42,6 +42,19 @@ class DeviceStore extends EventEmitter {
     });
   }
 
+  getKey(id, callbackFunc) {
+    this.swagger.then(client => {
+      client.apis.DeviceService.GetAPIKey({
+        id: id,
+      })
+      .then(checkStatus)
+      .then(resp => {
+        callbackFunc(resp.obj);
+      })
+      .catch(errorHandler);
+    });
+  }
+
   getBySerialNumber(serialNumber, callbackFunc) {
     this.swagger.then(client => {
       client.apis.DeviceService.GetBySerialNumber({
@@ -75,6 +88,23 @@ class DeviceStore extends EventEmitter {
 
   }
 
+  updateKey(id, callbackFunc) {
+    this.swagger.then(client => {
+      client.apis.DeviceService.UpdateAPIKey({
+        "id": id,
+        body: {},
+      })
+      .then(checkStatus)
+      .then(resp => {
+        this.emit("update");
+        this.notify("updated");
+        callbackFunc(resp.obj);
+      })
+      .catch(errorHandler);
+    });
+
+  }
+
   delete(id, callbackFunc) {
     this.swagger.then(client => {
       client.apis.DeviceService.Delete({
@@ -95,6 +125,17 @@ class DeviceStore extends EventEmitter {
         limit: limit,
         offset: offset,
       })
+      .then(checkStatus)
+      .then(resp => {
+        callbackFunc(resp.obj);
+      })
+      .catch(errorHandler);
+    });
+  }
+
+  listAll(callbackFunc) {
+    this.swagger.then(client => {
+      client.apis.DeviceService.ListAll()
       .then(checkStatus)
       .then(resp => {
         callbackFunc(resp.obj);

@@ -1,12 +1,6 @@
 import React from "react";
 
 import TextField from '@material-ui/core/TextField';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from "@material-ui/core/FormHelperText";
-
-import FormControl from "../../components/FormControl";
 import FormComponent from "../../classes/FormComponent";
 import Form from "../../components/Form";
 

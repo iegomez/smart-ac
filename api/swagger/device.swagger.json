@@ -15,6 +15,23 @@
     "application/json"
   ],
   "paths": {
+    "/api/all-devices": {
+      "get": {
+        "summary": "ListAll returns all the available devices (used at UI filtering).",
+        "operationId": "ListAll",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiListDeviceResponse"
+            }
+          }
+        },
+        "tags": [
+          "DeviceService"
+        ]
+      }
+    },
     "/api/devices": {
       "get": {
         "summary": "List returns the available devices.",
@@ -90,7 +107,7 @@
         "parameters": [
           {
             "name": "serial_number",
-            "description": "The device's id.",
+            "description": "The device's serial number.",
             "in": "path",
             "required": true,
             "type": "string"
@@ -185,6 +202,66 @@
           "DeviceService"
         ]
       }
+    },
+    "/api/devices/{id}/key": {
+      "get": {
+        "summary": "GetDeviceKey returns the device's api key'.",
+        "operationId": "GetAPIKey",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiGetDeviceKeyResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "The device's id.",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DeviceService"
+        ]
+      },
+      "put": {
+        "summary": "UpdateAPIKey updates the device's api key.",
+        "operationId": "UpdateAPIKey",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiGetDeviceKeyResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "The device's id.",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiDeviceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "DeviceService"
+        ]
+      }
     }
   },
   "definitions": {
@@ -199,7 +276,29 @@
           "type": "string",
           "description": "The device's firmware version."
         }
-      }
+      },
+      "description": "Request to create a device."
+    },
+    "apiDeviceRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "description": "The device's id."
+        }
+      },
+      "description": "Request to address a given device."
+    },
+    "apiGetDeviceKeyResponse": {
+      "type": "object",
+      "properties": {
+        "apiKey": {
+          "type": "string",
+          "description": "Api key."
+        }
+      },
+      "description": "Return the device's newly generated key."
     },
     "apiGetDeviceResponse": {
       "type": "object",
@@ -222,22 +321,26 @@
           "format": "date-time",
           "description": "Registered at timestamp."
         }
-      }
+      },
+      "description": "Holds a device response for the UI."
     },
     "apiListDeviceResponse": {
       "type": "object",
       "properties": {
         "totalCount": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "description": "Total amount of devices."
         },
-        "devices": {
+        "result": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/apiGetDeviceResponse"
-          }
+          },
+          "description": "Devices found given the request restrictions."
         }
-      }
+      },
+      "description": "List devices message."
     },
     "apiUpdateDeviceRequest": {
       "type": "object",
@@ -255,7 +358,8 @@
           "type": "string",
           "description": "The device's firmware version."
         }
-      }
+      },
+      "description": "Request to update the device."
     }
   }
 }

@@ -26,6 +26,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+// Holds a device response for the UI.
 type GetDeviceResponse struct {
 	// Device ID.
 	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -44,7 +45,7 @@ func (m *GetDeviceResponse) Reset()         { *m = GetDeviceResponse{} }
 func (m *GetDeviceResponse) String() string { return proto.CompactTextString(m) }
 func (*GetDeviceResponse) ProtoMessage()    {}
 func (*GetDeviceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_device_31ddc4ad52243fc7, []int{0}
+	return fileDescriptor_device_a2e04896c4d591ee, []int{0}
 }
 func (m *GetDeviceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetDeviceResponse.Unmarshal(m, b)
@@ -92,6 +93,47 @@ func (m *GetDeviceResponse) GetRegisteredAt() *timestamp.Timestamp {
 	return nil
 }
 
+// Return the device's newly generated key.
+type GetDeviceKeyResponse struct {
+	// Api key.
+	ApiKey               string   `protobuf:"bytes,1,opt,name=api_key,json=apiKey,proto3" json:"api_key,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetDeviceKeyResponse) Reset()         { *m = GetDeviceKeyResponse{} }
+func (m *GetDeviceKeyResponse) String() string { return proto.CompactTextString(m) }
+func (*GetDeviceKeyResponse) ProtoMessage()    {}
+func (*GetDeviceKeyResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_device_a2e04896c4d591ee, []int{1}
+}
+func (m *GetDeviceKeyResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetDeviceKeyResponse.Unmarshal(m, b)
+}
+func (m *GetDeviceKeyResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetDeviceKeyResponse.Marshal(b, m, deterministic)
+}
+func (dst *GetDeviceKeyResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetDeviceKeyResponse.Merge(dst, src)
+}
+func (m *GetDeviceKeyResponse) XXX_Size() int {
+	return xxx_messageInfo_GetDeviceKeyResponse.Size(m)
+}
+func (m *GetDeviceKeyResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetDeviceKeyResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetDeviceKeyResponse proto.InternalMessageInfo
+
+func (m *GetDeviceKeyResponse) GetApiKey() string {
+	if m != nil {
+		return m.ApiKey
+	}
+	return ""
+}
+
+// Request to create a device.
 type CreateDeviceRequest struct {
 	// The device's serial number.
 	SerialNumber string `protobuf:"bytes,2,opt,name=serial_number,json=serialNumber,proto3" json:"serial_number,omitempty"`
@@ -106,7 +148,7 @@ func (m *CreateDeviceRequest) Reset()         { *m = CreateDeviceRequest{} }
 func (m *CreateDeviceRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateDeviceRequest) ProtoMessage()    {}
 func (*CreateDeviceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_device_31ddc4ad52243fc7, []int{1}
+	return fileDescriptor_device_a2e04896c4d591ee, []int{2}
 }
 func (m *CreateDeviceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateDeviceRequest.Unmarshal(m, b)
@@ -140,6 +182,7 @@ func (m *CreateDeviceRequest) GetFirmwareVersion() string {
 	return ""
 }
 
+// Request to update the device.
 type UpdateDeviceRequest struct {
 	// Device ID.
 	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -156,7 +199,7 @@ func (m *UpdateDeviceRequest) Reset()         { *m = UpdateDeviceRequest{} }
 func (m *UpdateDeviceRequest) String() string { return proto.CompactTextString(m) }
 func (*UpdateDeviceRequest) ProtoMessage()    {}
 func (*UpdateDeviceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_device_31ddc4ad52243fc7, []int{2}
+	return fileDescriptor_device_a2e04896c4d591ee, []int{3}
 }
 func (m *UpdateDeviceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateDeviceRequest.Unmarshal(m, b)
@@ -197,6 +240,7 @@ func (m *UpdateDeviceRequest) GetFirmwareVersion() string {
 	return ""
 }
 
+// Request to address a given device.
 type DeviceRequest struct {
 	// The device's id.
 	Id                   int64    `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -209,7 +253,7 @@ func (m *DeviceRequest) Reset()         { *m = DeviceRequest{} }
 func (m *DeviceRequest) String() string { return proto.CompactTextString(m) }
 func (*DeviceRequest) ProtoMessage()    {}
 func (*DeviceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_device_31ddc4ad52243fc7, []int{3}
+	return fileDescriptor_device_a2e04896c4d591ee, []int{4}
 }
 func (m *DeviceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeviceRequest.Unmarshal(m, b)
@@ -236,8 +280,9 @@ func (m *DeviceRequest) GetId() int64 {
 	return 0
 }
 
+// Request device by serial number.
 type DeviceBySerialNumberRequest struct {
-	// The device's id.
+	// The device's serial number.
 	SerialNumber         string   `protobuf:"bytes,1,opt,name=serial_number,json=serialNumber,proto3" json:"serial_number,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -248,7 +293,7 @@ func (m *DeviceBySerialNumberRequest) Reset()         { *m = DeviceBySerialNumbe
 func (m *DeviceBySerialNumberRequest) String() string { return proto.CompactTextString(m) }
 func (*DeviceBySerialNumberRequest) ProtoMessage()    {}
 func (*DeviceBySerialNumberRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_device_31ddc4ad52243fc7, []int{4}
+	return fileDescriptor_device_a2e04896c4d591ee, []int{5}
 }
 func (m *DeviceBySerialNumberRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeviceBySerialNumberRequest.Unmarshal(m, b)
@@ -290,7 +335,7 @@ func (m *ListDeviceRequest) Reset()         { *m = ListDeviceRequest{} }
 func (m *ListDeviceRequest) String() string { return proto.CompactTextString(m) }
 func (*ListDeviceRequest) ProtoMessage()    {}
 func (*ListDeviceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_device_31ddc4ad52243fc7, []int{5}
+	return fileDescriptor_device_a2e04896c4d591ee, []int{6}
 }
 func (m *ListDeviceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListDeviceRequest.Unmarshal(m, b)
@@ -324,9 +369,12 @@ func (m *ListDeviceRequest) GetOffset() int64 {
 	return 0
 }
 
+// List devices message.
 type ListDeviceResponse struct {
-	TotalCount           int64                `protobuf:"varint,1,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`
-	Devices              []*GetDeviceResponse `protobuf:"bytes,2,rep,name=devices,proto3" json:"devices,omitempty"`
+	// Total amount of devices.
+	TotalCount int64 `protobuf:"varint,1,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`
+	// Devices found given the request restrictions.
+	Result               []*GetDeviceResponse `protobuf:"bytes,2,rep,name=result,proto3" json:"result,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
 	XXX_unrecognized     []byte               `json:"-"`
 	XXX_sizecache        int32                `json:"-"`
@@ -336,7 +384,7 @@ func (m *ListDeviceResponse) Reset()         { *m = ListDeviceResponse{} }
 func (m *ListDeviceResponse) String() string { return proto.CompactTextString(m) }
 func (*ListDeviceResponse) ProtoMessage()    {}
 func (*ListDeviceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_device_31ddc4ad52243fc7, []int{6}
+	return fileDescriptor_device_a2e04896c4d591ee, []int{7}
 }
 func (m *ListDeviceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListDeviceResponse.Unmarshal(m, b)
@@ -363,15 +411,16 @@ func (m *ListDeviceResponse) GetTotalCount() int64 {
 	return 0
 }
 
-func (m *ListDeviceResponse) GetDevices() []*GetDeviceResponse {
+func (m *ListDeviceResponse) GetResult() []*GetDeviceResponse {
 	if m != nil {
-		return m.Devices
+		return m.Result
 	}
 	return nil
 }
 
 func init() {
 	proto.RegisterType((*GetDeviceResponse)(nil), "api.GetDeviceResponse")
+	proto.RegisterType((*GetDeviceKeyResponse)(nil), "api.GetDeviceKeyResponse")
 	proto.RegisterType((*CreateDeviceRequest)(nil), "api.CreateDeviceRequest")
 	proto.RegisterType((*UpdateDeviceRequest)(nil), "api.UpdateDeviceRequest")
 	proto.RegisterType((*DeviceRequest)(nil), "api.DeviceRequest")
@@ -396,14 +445,20 @@ type DeviceServiceClient interface {
 	Create(ctx context.Context, in *CreateDeviceRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	// Get returns the device matching the given id.
 	Get(ctx context.Context, in *DeviceRequest, opts ...grpc.CallOption) (*GetDeviceResponse, error)
+	// GetDeviceKey returns the device's api key'.
+	GetAPIKey(ctx context.Context, in *DeviceRequest, opts ...grpc.CallOption) (*GetDeviceKeyResponse, error)
 	// Get returns the device matching the given id.
 	GetBySerialNumber(ctx context.Context, in *DeviceBySerialNumberRequest, opts ...grpc.CallOption) (*GetDeviceResponse, error)
 	// List returns the available devices.
 	List(ctx context.Context, in *ListDeviceRequest, opts ...grpc.CallOption) (*ListDeviceResponse, error)
+	// ListAll returns all the available devices (used at UI filtering).
+	ListAll(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ListDeviceResponse, error)
 	// Delete deletes the device matching the given id.
 	Delete(ctx context.Context, in *DeviceRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	// Update updates the device matching the given id.
 	Update(ctx context.Context, in *UpdateDeviceRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	// UpdateAPIKey updates the device's api key.
+	UpdateAPIKey(ctx context.Context, in *DeviceRequest, opts ...grpc.CallOption) (*GetDeviceKeyResponse, error)
 }
 
 type deviceServiceClient struct {
@@ -432,6 +487,15 @@ func (c *deviceServiceClient) Get(ctx context.Context, in *DeviceRequest, opts .
 	return out, nil
 }
 
+func (c *deviceServiceClient) GetAPIKey(ctx context.Context, in *DeviceRequest, opts ...grpc.CallOption) (*GetDeviceKeyResponse, error) {
+	out := new(GetDeviceKeyResponse)
+	err := c.cc.Invoke(ctx, "/api.DeviceService/GetAPIKey", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *deviceServiceClient) GetBySerialNumber(ctx context.Context, in *DeviceBySerialNumberRequest, opts ...grpc.CallOption) (*GetDeviceResponse, error) {
 	out := new(GetDeviceResponse)
 	err := c.cc.Invoke(ctx, "/api.DeviceService/GetBySerialNumber", in, out, opts...)
@@ -444,6 +508,15 @@ func (c *deviceServiceClient) GetBySerialNumber(ctx context.Context, in *DeviceB
 func (c *deviceServiceClient) List(ctx context.Context, in *ListDeviceRequest, opts ...grpc.CallOption) (*ListDeviceResponse, error) {
 	out := new(ListDeviceResponse)
 	err := c.cc.Invoke(ctx, "/api.DeviceService/List", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *deviceServiceClient) ListAll(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ListDeviceResponse, error) {
+	out := new(ListDeviceResponse)
+	err := c.cc.Invoke(ctx, "/api.DeviceService/ListAll", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -468,20 +541,35 @@ func (c *deviceServiceClient) Update(ctx context.Context, in *UpdateDeviceReques
 	return out, nil
 }
 
+func (c *deviceServiceClient) UpdateAPIKey(ctx context.Context, in *DeviceRequest, opts ...grpc.CallOption) (*GetDeviceKeyResponse, error) {
+	out := new(GetDeviceKeyResponse)
+	err := c.cc.Invoke(ctx, "/api.DeviceService/UpdateAPIKey", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DeviceServiceServer is the server API for DeviceService service.
 type DeviceServiceServer interface {
 	// Create creates the given device.
 	Create(context.Context, *CreateDeviceRequest) (*empty.Empty, error)
 	// Get returns the device matching the given id.
 	Get(context.Context, *DeviceRequest) (*GetDeviceResponse, error)
+	// GetDeviceKey returns the device's api key'.
+	GetAPIKey(context.Context, *DeviceRequest) (*GetDeviceKeyResponse, error)
 	// Get returns the device matching the given id.
 	GetBySerialNumber(context.Context, *DeviceBySerialNumberRequest) (*GetDeviceResponse, error)
 	// List returns the available devices.
 	List(context.Context, *ListDeviceRequest) (*ListDeviceResponse, error)
+	// ListAll returns all the available devices (used at UI filtering).
+	ListAll(context.Context, *empty.Empty) (*ListDeviceResponse, error)
 	// Delete deletes the device matching the given id.
 	Delete(context.Context, *DeviceRequest) (*empty.Empty, error)
 	// Update updates the device matching the given id.
 	Update(context.Context, *UpdateDeviceRequest) (*empty.Empty, error)
+	// UpdateAPIKey updates the device's api key.
+	UpdateAPIKey(context.Context, *DeviceRequest) (*GetDeviceKeyResponse, error)
 }
 
 func RegisterDeviceServiceServer(s *grpc.Server, srv DeviceServiceServer) {
@@ -524,6 +612,24 @@ func _DeviceService_Get_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DeviceService_GetAPIKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeviceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeviceServiceServer).GetAPIKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.DeviceService/GetAPIKey",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeviceServiceServer).GetAPIKey(ctx, req.(*DeviceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _DeviceService_GetBySerialNumber_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeviceBySerialNumberRequest)
 	if err := dec(in); err != nil {
@@ -556,6 +662,24 @@ func _DeviceService_List_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(DeviceServiceServer).List(ctx, req.(*ListDeviceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DeviceService_ListAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(empty.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeviceServiceServer).ListAll(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.DeviceService/ListAll",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeviceServiceServer).ListAll(ctx, req.(*empty.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -596,6 +720,24 @@ func _DeviceService_Update_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DeviceService_UpdateAPIKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeviceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeviceServiceServer).UpdateAPIKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.DeviceService/UpdateAPIKey",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeviceServiceServer).UpdateAPIKey(ctx, req.(*DeviceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _DeviceService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "api.DeviceService",
 	HandlerType: (*DeviceServiceServer)(nil),
@@ -609,12 +751,20 @@ var _DeviceService_serviceDesc = grpc.ServiceDesc{
 			Handler:    _DeviceService_Get_Handler,
 		},
 		{
+			MethodName: "GetAPIKey",
+			Handler:    _DeviceService_GetAPIKey_Handler,
+		},
+		{
 			MethodName: "GetBySerialNumber",
 			Handler:    _DeviceService_GetBySerialNumber_Handler,
 		},
 		{
 			MethodName: "List",
 			Handler:    _DeviceService_List_Handler,
+		},
+		{
+			MethodName: "ListAll",
+			Handler:    _DeviceService_ListAll_Handler,
 		},
 		{
 			MethodName: "Delete",
@@ -624,48 +774,58 @@ var _DeviceService_serviceDesc = grpc.ServiceDesc{
 			MethodName: "Update",
 			Handler:    _DeviceService_Update_Handler,
 		},
+		{
+			MethodName: "UpdateAPIKey",
+			Handler:    _DeviceService_UpdateAPIKey_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "device.proto",
 }
 
-func init() { proto.RegisterFile("device.proto", fileDescriptor_device_31ddc4ad52243fc7) }
+func init() { proto.RegisterFile("device.proto", fileDescriptor_device_a2e04896c4d591ee) }
 
-var fileDescriptor_device_31ddc4ad52243fc7 = []byte{
-	// 547 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x53, 0xcd, 0x6e, 0xd3, 0x4c,
-	0x14, 0x95, 0xe3, 0x36, 0x9f, 0xbe, 0x9b, 0xa4, 0x90, 0x9b, 0x2a, 0x35, 0x6e, 0xa5, 0x44, 0x46,
-	0x42, 0x21, 0x12, 0x0e, 0x0a, 0xbb, 0x6e, 0x50, 0x7f, 0x50, 0x37, 0x05, 0x24, 0x07, 0x10, 0xbb,
-	0x68, 0x52, 0xdf, 0x44, 0x23, 0xc5, 0x1e, 0xe3, 0x99, 0x14, 0x45, 0x55, 0x36, 0xbc, 0x02, 0x8f,
-	0xc1, 0x96, 0x37, 0xe1, 0x15, 0x78, 0x10, 0x94, 0x19, 0x5b, 0x24, 0xb5, 0x83, 0xd8, 0xb0, 0xb2,
-	0xe6, 0xce, 0x9d, 0x73, 0x8e, 0xcf, 0x3d, 0x17, 0xea, 0x21, 0xdd, 0xf2, 0x1b, 0xf2, 0x93, 0x54,
-	0x28, 0x81, 0x36, 0x4b, 0xb8, 0x7b, 0x32, 0x13, 0x62, 0x36, 0xa7, 0x01, 0x4b, 0xf8, 0x80, 0xc5,
-	0xb1, 0x50, 0x4c, 0x71, 0x11, 0x4b, 0xd3, 0xe2, 0x76, 0xb2, 0x5b, 0x7d, 0x9a, 0x2c, 0xa6, 0x03,
-	0xc5, 0x23, 0x92, 0x8a, 0x45, 0x49, 0xd6, 0x70, 0x7c, 0xbf, 0x81, 0xa2, 0x44, 0x2d, 0xcd, 0xa5,
-	0xf7, 0xdd, 0x82, 0xe6, 0x15, 0xa9, 0x4b, 0x4d, 0x1a, 0x90, 0x4c, 0x44, 0x2c, 0x09, 0x0f, 0xa0,
-	0xc2, 0x43, 0xc7, 0xea, 0x5a, 0x3d, 0x3b, 0xa8, 0xf0, 0x10, 0x1f, 0x43, 0x43, 0x52, 0xca, 0xd9,
-	0x7c, 0x1c, 0x2f, 0xa2, 0x09, 0xa5, 0x8e, 0xdd, 0xb5, 0x7a, 0xff, 0x07, 0x75, 0x53, 0x7c, 0xa3,
-	0x6b, 0xf8, 0x14, 0x1e, 0x4e, 0x79, 0x1a, 0x7d, 0x66, 0x29, 0x8d, 0x6f, 0x29, 0x95, 0x5c, 0xc4,
-	0xce, 0x9e, 0xee, 0x7b, 0x90, 0xd7, 0x3f, 0x98, 0x32, 0xbe, 0x84, 0x46, 0x4a, 0x33, 0x2e, 0x15,
-	0xa5, 0x14, 0x8e, 0x99, 0x72, 0xf6, 0xbb, 0x56, 0xaf, 0x36, 0x74, 0x7d, 0x23, 0xd5, 0xcf, 0xa5,
-	0xfa, 0xef, 0xf2, 0x7f, 0x09, 0xea, 0xbf, 0x1f, 0x9c, 0x29, 0x8f, 0xa0, 0x75, 0x91, 0x12, 0x53,
-	0x94, 0x0b, 0xff, 0xb4, 0x20, 0xa9, 0x8a, 0x3a, 0x2b, 0x7f, 0xa9, 0xd3, 0x2e, 0xd5, 0xe9, 0x2d,
-	0xa0, 0xf5, 0x3e, 0x09, 0x0b, 0x34, 0xff, 0xd8, 0x1e, 0xaf, 0x03, 0x8d, 0x3f, 0x12, 0x7a, 0xe7,
-	0x70, 0x6c, 0x1a, 0xce, 0x97, 0xa3, 0x0d, 0x8e, 0x9d, 0x36, 0x58, 0x45, 0x3d, 0xde, 0x19, 0x34,
-	0xaf, 0xb9, 0x54, 0xdb, 0x44, 0x87, 0xb0, 0x3f, 0xe7, 0x11, 0x57, 0x19, 0x97, 0x39, 0x60, 0x1b,
-	0xaa, 0x62, 0x3a, 0x95, 0xa4, 0xb4, 0x9f, 0x76, 0x90, 0x9d, 0xbc, 0x19, 0xe0, 0x26, 0x44, 0x16,
-	0x9e, 0x0e, 0xd4, 0x94, 0x50, 0x6c, 0x3e, 0xbe, 0x11, 0x8b, 0x38, 0x47, 0x02, 0x5d, 0xba, 0x58,
-	0x57, 0xf0, 0x39, 0xfc, 0x67, 0x42, 0x2e, 0x9d, 0x4a, 0xd7, 0xee, 0xd5, 0x86, 0x6d, 0x9f, 0x25,
-	0xdc, 0x2f, 0xc4, 0x30, 0xc8, 0xdb, 0x86, 0xdf, 0xf6, 0x72, 0x47, 0x46, 0x94, 0xae, 0x3f, 0x38,
-	0x82, 0xaa, 0x09, 0x00, 0x3a, 0xfa, 0x71, 0x49, 0x1a, 0xdc, 0x76, 0x21, 0x4e, 0xaf, 0xd6, 0xc9,
-	0xf7, 0x8e, 0xbe, 0xfc, 0xf8, 0xf9, 0xb5, 0xd2, 0xf4, 0xea, 0x7a, 0xa3, 0x32, 0x8e, 0x53, 0xab,
-	0x8f, 0xd7, 0x60, 0x5f, 0x91, 0x42, 0xd4, 0x88, 0xf7, 0xb1, 0x4a, 0x25, 0x7a, 0x8f, 0x34, 0x56,
-	0x0b, 0x9b, 0x9b, 0x58, 0x83, 0x3b, 0x1e, 0xae, 0x70, 0xa5, 0x37, 0x6b, 0x7b, 0x42, 0xd8, 0xdd,
-	0xc0, 0x2e, 0x1d, 0xde, 0x4e, 0x26, 0x5f, 0x33, 0xf5, 0xf0, 0xc9, 0x16, 0xd3, 0x64, 0xf9, 0xcc,
-	0x4c, 0x75, 0x70, 0xb7, 0x35, 0xf2, 0x15, 0xbe, 0x86, 0xbd, 0xf5, 0x70, 0xd0, 0xe0, 0x15, 0x46,
-	0xed, 0x1e, 0x15, 0xea, 0x19, 0xd1, 0xa1, 0x26, 0x3a, 0xc0, 0x2d, 0x7b, 0xf0, 0x2d, 0x54, 0x2f,
-	0x69, 0x4e, 0x8a, 0x76, 0xd8, 0x53, 0x6e, 0x75, 0x66, 0x4f, 0xbf, 0xc4, 0x9e, 0x8f, 0x50, 0x35,
-	0xbb, 0x95, 0x4d, 0xb0, 0x64, 0xd1, 0x76, 0xc2, 0x9e, 0x68, 0xd8, 0xb6, 0x5b, 0x84, 0x3d, 0xb5,
-	0xfa, 0x93, 0xaa, 0xee, 0x7e, 0xf1, 0x2b, 0x00, 0x00, 0xff, 0xff, 0x29, 0xd3, 0x20, 0x0c, 0x4b,
-	0x05, 0x00, 0x00,
+var fileDescriptor_device_a2e04896c4d591ee = []byte{
+	// 646 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x94, 0xcd, 0x4e, 0xdb, 0x40,
+	0x10, 0xc7, 0xe5, 0x18, 0x8c, 0x18, 0x02, 0x25, 0x03, 0x4d, 0x82, 0xa1, 0x22, 0x72, 0xa5, 0x2a,
+	0x45, 0xc2, 0x96, 0xe8, 0x8d, 0x4b, 0x15, 0xa0, 0x42, 0x15, 0xf4, 0x43, 0x86, 0x56, 0xed, 0x29,
+	0xda, 0x90, 0x09, 0x5a, 0xe1, 0xd8, 0xae, 0xbd, 0xa1, 0xb2, 0x10, 0x97, 0xbe, 0x42, 0x5f, 0xa5,
+	0xd7, 0x3e, 0x45, 0x5f, 0xa1, 0x0f, 0x52, 0x79, 0xd7, 0xa6, 0x09, 0xb6, 0xab, 0xaa, 0x52, 0x4f,
+	0xd1, 0x4e, 0xc6, 0xbf, 0xff, 0x7c, 0xfc, 0x77, 0xa1, 0x3e, 0xa4, 0x6b, 0x7e, 0x41, 0x76, 0x18,
+	0x05, 0x22, 0x40, 0x9d, 0x85, 0xdc, 0xdc, 0xba, 0x0c, 0x82, 0x4b, 0x8f, 0x1c, 0x16, 0x72, 0x87,
+	0xf9, 0x7e, 0x20, 0x98, 0xe0, 0x81, 0x1f, 0xab, 0x14, 0x73, 0x3b, 0xfb, 0x57, 0x9e, 0x06, 0x93,
+	0x91, 0x23, 0xf8, 0x98, 0x62, 0xc1, 0xc6, 0x61, 0x96, 0xb0, 0x79, 0x3f, 0x81, 0xc6, 0xa1, 0x48,
+	0xd4, 0x9f, 0xd6, 0x37, 0x0d, 0x1a, 0xc7, 0x24, 0x8e, 0xa4, 0xa8, 0x4b, 0x71, 0x18, 0xf8, 0x31,
+	0xe1, 0x0a, 0xd4, 0xf8, 0xb0, 0xad, 0x75, 0xb4, 0xae, 0xee, 0xd6, 0xf8, 0x10, 0x1f, 0xc3, 0x72,
+	0x4c, 0x11, 0x67, 0x5e, 0xdf, 0x9f, 0x8c, 0x07, 0x14, 0xb5, 0xf5, 0x8e, 0xd6, 0x5d, 0x74, 0xeb,
+	0x2a, 0xf8, 0x5a, 0xc6, 0xf0, 0x29, 0xac, 0x8e, 0x78, 0x34, 0xfe, 0xcc, 0x22, 0xea, 0x5f, 0x53,
+	0x14, 0xf3, 0xc0, 0x6f, 0xcf, 0xc9, 0xbc, 0x07, 0x79, 0xfc, 0xbd, 0x0a, 0xe3, 0x73, 0x58, 0x8e,
+	0xe8, 0x92, 0xc7, 0x82, 0x22, 0x1a, 0xf6, 0x99, 0x68, 0xcf, 0x77, 0xb4, 0xee, 0xd2, 0x9e, 0x69,
+	0xab, 0x52, 0xed, 0xbc, 0x54, 0xfb, 0x3c, 0xef, 0xc5, 0xad, 0xff, 0xfe, 0xa0, 0x27, 0x2c, 0x07,
+	0xd6, 0xef, 0xaa, 0x3e, 0xa1, 0xe4, 0xae, 0xf0, 0x16, 0x2c, 0xb0, 0x90, 0xf7, 0xaf, 0x28, 0x91,
+	0xd5, 0x2f, 0xba, 0x06, 0x0b, 0xf9, 0x09, 0x25, 0x16, 0xc1, 0xda, 0x61, 0x44, 0x4c, 0x50, 0xde,
+	0xe9, 0xa7, 0x09, 0xc5, 0xa2, 0xd8, 0x58, 0xed, 0x2f, 0x1b, 0xd3, 0x4b, 0x1b, 0xb3, 0x26, 0xb0,
+	0xf6, 0x2e, 0x1c, 0x16, 0x64, 0xfe, 0xf3, 0x3c, 0xad, 0x6d, 0x58, 0xfe, 0xa3, 0xa0, 0x75, 0x00,
+	0x9b, 0x2a, 0xe1, 0x20, 0x39, 0x9b, 0xd2, 0xa8, 0x1c, 0x83, 0x56, 0xac, 0xc7, 0xea, 0x41, 0xe3,
+	0x94, 0xc7, 0x62, 0x56, 0x68, 0x1d, 0xe6, 0x3d, 0x3e, 0xe6, 0x22, 0xd3, 0x52, 0x07, 0x6c, 0x82,
+	0x11, 0x8c, 0x46, 0x31, 0x09, 0x39, 0x4f, 0xdd, 0xcd, 0x4e, 0x16, 0x01, 0x4e, 0x23, 0xb2, 0xa5,
+	0x6d, 0xc3, 0x92, 0x08, 0x04, 0xf3, 0xfa, 0x17, 0xc1, 0xc4, 0xcf, 0x49, 0x20, 0x43, 0x87, 0x69,
+	0x04, 0x6d, 0x30, 0x22, 0x8a, 0x27, 0x5e, 0x8a, 0xd3, 0xbb, 0x4b, 0x7b, 0x4d, 0x9b, 0x85, 0xdc,
+	0x2e, 0xd8, 0xd6, 0xcd, 0xb2, 0xf6, 0xbe, 0x1b, 0xf9, 0x3c, 0xce, 0x28, 0x4a, 0x7f, 0xf0, 0x0c,
+	0x0c, 0xb5, 0x7e, 0x6c, 0xcb, 0x6f, 0x4b, 0xbc, 0x60, 0x36, 0x0b, 0xee, 0x7b, 0x91, 0x5e, 0x14,
+	0xab, 0xf5, 0xe5, 0xc7, 0xcf, 0xaf, 0xb5, 0x86, 0x55, 0x97, 0x17, 0x50, 0x5d, 0xcf, 0x78, 0x5f,
+	0xdb, 0xc1, 0x53, 0xd0, 0x8f, 0x49, 0x20, 0x4a, 0xe2, 0x7d, 0x56, 0x69, 0x85, 0xd6, 0x86, 0x64,
+	0xad, 0x61, 0x63, 0x9a, 0xe5, 0xdc, 0xf0, 0xe1, 0x2d, 0x7e, 0x84, 0xc5, 0x63, 0x12, 0xbd, 0xb7,
+	0x2f, 0x4f, 0x28, 0x29, 0x65, 0x6e, 0xcc, 0x32, 0xa7, 0x6c, 0x6f, 0x3d, 0x92, 0xd8, 0x16, 0x3e,
+	0x2c, 0x60, 0x9d, 0x2b, 0x4a, 0xf0, 0x56, 0xde, 0xf1, 0xd9, 0xd5, 0x63, 0x67, 0x4a, 0xa2, 0xd4,
+	0x15, 0x95, 0x4d, 0xd8, 0x52, 0xad, 0x8b, 0x4f, 0x66, 0xd4, 0x06, 0xc9, 0xae, 0xb2, 0x8b, 0x73,
+	0x33, 0xe3, 0xa5, 0x5b, 0x7c, 0x05, 0x73, 0xe9, 0xd6, 0x51, 0xf1, 0x0a, 0x1e, 0x32, 0x5b, 0x85,
+	0x78, 0x26, 0xb4, 0x2e, 0x85, 0x56, 0x70, 0x66, 0xf2, 0x78, 0x0e, 0x0b, 0x69, 0x6e, 0xcf, 0xf3,
+	0xb0, 0x62, 0x65, 0xd5, 0xc4, 0xb6, 0x24, 0x22, 0xae, 0xaa, 0xc7, 0xd4, 0xf3, 0x76, 0x73, 0xea,
+	0x1b, 0x30, 0x8e, 0xc8, 0x23, 0x41, 0x15, 0xfb, 0x2c, 0xf7, 0x46, 0xb6, 0xcf, 0x9d, 0x92, 0x7d,
+	0x7e, 0x00, 0x43, 0x3d, 0x05, 0x99, 0xe5, 0x4a, 0xde, 0x85, 0x4a, 0xec, 0x96, 0xc4, 0x36, 0xcd,
+	0x22, 0x36, 0xf5, 0x5d, 0x1f, 0xea, 0x0a, 0xf6, 0x6f, 0x66, 0xe9, 0x48, 0xb8, 0x69, 0x96, 0x9b,
+	0x65, 0x5f, 0xdb, 0x19, 0x18, 0xb2, 0x9c, 0x67, 0xbf, 0x02, 0x00, 0x00, 0xff, 0xff, 0x90, 0xba,
+	0x26, 0xb8, 0x8c, 0x06, 0x00, 0x00,
 }

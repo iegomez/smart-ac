@@ -33,62 +33,67 @@ service DatumService {
 
     // ListForDevice returns the available data for a given device id.
     rpc ListForDevice(ListDataForDeviceRequest) returns (ListDataResponse) {
-      option (google.api.http) = {
-          get: "/api/devices/{device_id}/data"
-      };
-  }
+        option (google.api.http) = {
+            get: "/api/devices/{device_id}/data"
+        };
+    }
 
     // Delete deletes the datum matching the given id.
     rpc Delete(DatumRequest) returns (google.protobuf.Empty) {
-      option (google.api.http) = {
-          delete: "/api/data/{id}"
-      };
+        option (google.api.http) = {
+            delete: "/api/data/{id}"
+        };
     }
 
 }
 
+//How a datum to be presented to the UI looks like.
 message GetDatumResponse {
   // Datum ID.
   int64 id = 1 [json_name = "id"];
-
   // Device ID.
   int64 device_id = 2 [json_name = "deviceID"];
-
+  //Temperature as a float64.
   double temperature = 3 [json_name = "temperature"];
-
+  //Carbon monoxide as a float 64.
   double carbon_monoxide = 4 [json_name = "carbonMonoxide"];
-
+  //Air humidity percentage as a float64 between 0.0 and 1.0 included.
   double air_humidity = 5 [json_name = "airHumidity"];
-
+  //UTF8 string of max 149 characters.
   string health_status = 6 [json_name = "healthStatus"];
-
   // Created at timestamp.
   google.protobuf.Timestamp created_at = 7 [json_name = "createdAt"];
+  // The device's serial number.
+  string serial_number = 8 [json_name = "serialNumber"];
 }
 
+// How a datum sent by a device looks like.
 message Datum {
-  // Device ID.
-  int64 device_id = 1 [json_name = "deviceID"];
-
+  //Temperature as a float64.
   double temperature = 2 [json_name = "temperature"];
-
+  //Carbon monoxide as a float 64.
   double carbon_monoxide = 3 [json_name = "carbonMonoxide"];
-
+  //Air humidity percentage as a float64 between 0.0 and 1.0 included.
   double air_humidity = 4 [json_name = "airHumidity"];
-
+  //UTF8 string of max 149 characters.
   string health_status = 5 [json_name = "healthStatus"];
 }
 
+// To create data a device must send a request with it's serial number and the array of data.
 message CreateDataRequest {
-  repeated Datum data = 1 [json_name = "data"];
+  // Device's serial number.
+  string serial_number = 1 [json_name = "serialNumber"];
+  // Array of data.
+  repeated Datum data = 2 [json_name = "data"];
 }
 
-
+// Request a datum by id.
 message DatumRequest {
   // The datum's id.
   int64 id = 1 [json_name = "id"];
 }
 
+// Request all data between 2 dates, with limit and offset.
 message ListDataRequest {
   // Max amount of data to retrieve.
   int64 limit = 1 [json_name = "limit"];
@@ -100,8 +105,9 @@ message ListDataRequest {
   google.protobuf.Timestamp end_date = 4 [json_name = "endDate"];
 }
 
+// Request all data for a given device between 2 dates, with limit and offset.
 message ListDataForDeviceRequest {
-  int64 device_id = 1 [json_name = "deviceID"];
+  int64 device_id = 1 [json_name = "device_id"];
   // Max amount of data to retrieve.
   int64 limit = 2 [json_name = "limit"];
   // Offset for retrieving data.
@@ -112,8 +118,11 @@ message ListDataForDeviceRequest {
   google.protobuf.Timestamp end_date = 5 [json_name = "endDate"];
 }
 
+// 
 message ListDataResponse {
+  //Total amount of data available.
   int64 total_count = 1 [json_name = "totalCount"];
-  repeated GetDatumResponse data = 2 [json_name = "data"];
+  //The data returned following the request's restrictions.
+  repeated GetDatumResponse result = 2 [json_name = "result"];
 }
 

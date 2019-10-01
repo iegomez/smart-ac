@@ -19,10 +19,10 @@ import theme from "./theme";
 import TopNav from "./components/TopNav";
 import Notifications from "./components/Notifications";
 
-// device
 import ListDevices from "./views/devices/ListDevices";
 import CreateDevice from "./views/devices/CreateDevice";
-import UpdateDevice from "./views/devices/UpdateDevice";
+import DeviceLayout from "./views/devices/DeviceLayout";
+import ListData from "./views/data/ListData";
 
 const styles = {
   root: {
@@ -65,16 +65,17 @@ class App extends Component {
           <React.Fragment>
             <CssBaseline />
             <MuiThemeProvider theme={theme}>
-              <div className={this.props.classes.root}>
-                <div className="">
-                  <Grid container>
-                    <Switch>
-                      <Route exact path="/" component={ListDevices} />
-                      <Route exact path="/devices/create" component={CreateDevice} />
-                      <Route exact path="/devices/:id(\d+)" component={UpdateDevice} />
-                    </Switch>
-                  </Grid>
-                </div>
+              <div style={{
+                margin: "40px"
+              }}>
+                <Grid container>
+                  <Switch>
+                    <Route exact path="/" component={ListDevices} />
+                    <Route exact path="/devices/create" component={CreateDevice} />
+                    <Route path="/devices/:id(\d+)" component={DeviceLayout} />
+                    <Route exact path="/data" component={ListData} />
+                  </Switch>
+                </Grid>
               </div>
               <Notifications />
             </MuiThemeProvider>
