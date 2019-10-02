@@ -4,12 +4,12 @@ import Swagger from "swagger-client";
 
 import {checkStatus, errorHandler, errorHandlerIgnoreNotFoundWithCallback } from "./helpers";
 import dispatcher from "../dispatcher";
-
+import sessionStore from "./SessionStore";
 
 class DeviceStore extends EventEmitter {
   constructor() {
     super();
-    this.swagger = new Swagger("/swagger/device.swagger.json", {});
+    this.swagger = new Swagger("/swagger/device.swagger.json", sessionStore.getClientOpts());
   }
 
   create(serialNumber, firmwareVersion, callbackFunc) {

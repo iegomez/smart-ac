@@ -11,18 +11,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// TODO
-/*
-	create table datum (
-  id bigserial primary key,
-  device_id bigint references datum on delete cascade,
-	temperature double precision not null default 0.0,
-	carbon_monoxide double precision not null default 0.0,
-  air_humidity double precision not null default 0.0,
-  health_status text not null default ''
-);
-*/
-
 //Datum holds a message from a device.
 type Datum struct {
 	ID             int64     `db:"id"`
@@ -34,6 +22,14 @@ type Datum struct {
 	CreatedAt      time.Time `db:"created_at"`
 }
 
+var allowedFilters = map[string]bool{
+	"temperature":     true,
+	"carbon_monoxide": true,
+	"air_humidity":    true,
+	"health_status":   true,
+}
+
+//DatumWithSerial holds a datum and the associated device's serial number.
 type DatumWithSerial struct {
 	Datum
 	SerialNumber string `db:"serial_number"`
@@ -62,6 +58,11 @@ func CreateData(db *sqlx.DB, data []Datum, id int64) error {
 	stmt, err := txn.Prepare(pq.CopyIn("datum", "device_id", "temperature", "carbon_monoxide", "air_humidity", "health_status", "created_at"))
 	if err != nil {
 		return err
+	}
+
+	//Requirements say that data may be sent on batches of at most 500 values.
+	if len(data) > 500 {
+		data = data[:500]
 	}
 
 	for _, d := range data {

@@ -25,7 +25,7 @@ func NewDatumAPI() *DatumAPI {
 	return &DatumAPI{}
 }
 
-var validAuthorizationRegexp = regexp.MustCompile(`(?i)^Apikey (.*)$`)
+var validApiKeyAuthorizationRegexp = regexp.MustCompile(`(?i)^Apikey (.*)$`)
 
 //getKeyFromContext tries to get the api key sent in the Authorization header when receiving data from a device.
 func getKeyFromContext(ctx context.Context) (string, error) {
@@ -34,14 +34,12 @@ func getKeyFromContext(ctx context.Context) (string, error) {
 		return "", errors.New("no metadata in context")
 	}
 
-	log.Infof("metadata: %#v\n", md)
-
 	token, ok := md["authorization"]
 	if !ok || len(token) == 0 {
 		return "", errors.New("no authorization-data in metadata")
 	}
 
-	match := validAuthorizationRegexp.FindStringSubmatch(token[0])
+	match := validApiKeyAuthorizationRegexp.FindStringSubmatch(token[0])
 
 	// authorization header should respect RFC1945
 	if len(match) == 0 {
@@ -94,6 +92,11 @@ func (a *DatumAPI) Create(ctx context.Context, req *pb.CreateDataRequest) (*empt
 // Get retrieves a datum given an id.
 func (a *DatumAPI) Get(ctx context.Context, req *pb.DatumRequest) (*pb.GetDatumResponse, error) {
 
+	isUser, err := GetIsUser(ctx)
+	if err != nil || !isUser {
+		return nil, helpers.ErrToRPCError(err)
+	}
+
 	d, err := storage.GetDatum(storage.DB(), req.Id)
 	if err != nil {
 		return nil, helpers.ErrToRPCError(err)
@@ -119,6 +122,11 @@ func (a *DatumAPI) Get(ctx context.Context, req *pb.DatumRequest) (*pb.GetDatumR
 
 // List retrieves all data between a start and an end date, given a limit and an offset.
 func (a *DatumAPI) List(ctx context.Context, req *pb.ListDataRequest) (*pb.ListDataResponse, error) {
+
+	isUser, err := GetIsUser(ctx)
+	if err != nil || !isUser {
+		return nil, helpers.ErrToRPCError(err)
+	}
 
 	startDate, err := ptypes.Timestamp(req.StartDate)
 	if err != nil {
@@ -146,7 +154,7 @@ func (a *DatumAPI) List(ctx context.Context, req *pb.ListDataRequest) (*pb.ListD
 	}
 
 	for i, d := range data {
-		datum := &pb.GetDatumResponse{
+		resp.Result[i] = &pb.GetDatumResponse{
 			Id:             d.ID,
 			DeviceId:       d.DeviceID,
 			Temperature:    d.Temperature,
@@ -155,11 +163,10 @@ func (a *DatumAPI) List(ctx context.Context, req *pb.ListDataRequest) (*pb.ListD
 			HealthStatus:   d.HealthStatus,
 			SerialNumber:   d.SerialNumber,
 		}
-		datum.CreatedAt, err = ptypes.TimestampProto(d.CreatedAt)
+		resp.Result[i].CreatedAt, err = ptypes.TimestampProto(d.CreatedAt)
 		if err != nil {
 			return nil, helpers.ErrToRPCError(err)
 		}
-		resp.Result[i] = datum
 	}
 
 	return resp, nil
@@ -167,6 +174,11 @@ func (a *DatumAPI) List(ctx context.Context, req *pb.ListDataRequest) (*pb.ListD
 
 // ListForDevice retrieves all data for a given device between a start and an end date, given a limit and an offset.
 func (a *DatumAPI) ListForDevice(ctx context.Context, req *pb.ListDataForDeviceRequest) (*pb.ListDataResponse, error) {
+
+	isUser, err := GetIsUser(ctx)
+	if err != nil || !isUser {
+		return nil, helpers.ErrToRPCError(err)
+	}
 
 	startDate, err := ptypes.Timestamp(req.StartDate)
 	if err != nil {
@@ -194,7 +206,7 @@ func (a *DatumAPI) ListForDevice(ctx context.Context, req *pb.ListDataForDeviceR
 	}
 
 	for i, d := range data {
-		datum := &pb.GetDatumResponse{
+		resp.Result[i] = &pb.GetDatumResponse{
 			Id:             d.ID,
 			DeviceId:       d.DeviceID,
 			Temperature:    d.Temperature,
@@ -202,11 +214,10 @@ func (a *DatumAPI) ListForDevice(ctx context.Context, req *pb.ListDataForDeviceR
 			AirHumidity:    d.AirHumidity,
 			HealthStatus:   d.HealthStatus,
 		}
-		datum.CreatedAt, err = ptypes.TimestampProto(d.CreatedAt)
+		resp.Result[i].CreatedAt, err = ptypes.TimestampProto(d.CreatedAt)
 		if err != nil {
 			return nil, helpers.ErrToRPCError(err)
 		}
-		resp.Result[i] = datum
 	}
 
 	return resp, nil
@@ -215,7 +226,13 @@ func (a *DatumAPI) ListForDevice(ctx context.Context, req *pb.ListDataForDeviceR
 
 //Delete deletes a datum given an id.
 func (a *DatumAPI) Delete(ctx context.Context, req *pb.DatumRequest) (*empty.Empty, error) {
-	err := storage.DeleteDatum(storage.DB(), req.Id)
+
+	isUser, err := GetIsUser(ctx)
+	if err != nil || !isUser {
+		return nil, helpers.ErrToRPCError(err)
+	}
+
+	err = storage.DeleteDatum(storage.DB(), req.Id)
 	if err != nil {
 		return nil, helpers.ErrToRPCError(err)
 	}

@@ -59,6 +59,16 @@
             "required": false,
             "type": "string",
             "format": "date-time"
+          },
+          {
+            "name": "filters",
+            "description": "Filters is an array of sensor types. Valid values are: temperature, carbon_monoxide, air_humidity, health_status.\nFor any sensor type not included in filters, the zero value (empty string for health status, 0.0 for the others) will be returned.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         ],
         "tags": [
@@ -194,6 +204,16 @@
             "required": false,
             "type": "string",
             "format": "date-time"
+          },
+          {
+            "name": "filters",
+            "description": "Filters is an array of values to request. Valid values are: temperature, carbon_monoxide, air_humidity, health_status.\nFor any value not included in filters, the zero value (empty string for health status, 0.0 for the others) will be returned.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         ],
         "tags": [

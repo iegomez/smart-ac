@@ -4,12 +4,12 @@ import Swagger from "swagger-client";
 
 import {checkStatus, errorHandler, errorHandlerIgnoreNotFoundWithCallback } from "./helpers";
 import dispatcher from "../dispatcher";
-
+import sessionStore from "./SessionStore";
 
 class DatumStore extends EventEmitter {
   constructor() {
     super();
-    this.swagger = new Swagger("/swagger/datum.swagger.json", {});
+    this.swagger = new Swagger("/swagger/datum.swagger.json", sessionStore.getClientOpts());
   }
 
   get(id, callbackFunc) {

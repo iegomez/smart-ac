@@ -24,6 +24,11 @@ func DB() *sqlx.DB {
 	return db
 }
 
+// JWTSecret return the JWT secret.
+func JWTSecret() []byte {
+	return jwtsecret
+}
+
 // Transaction wraps the given function in a transaction. In case the given
 // functions returns an error, the transaction will be rolled back.
 func Transaction(f func(tx sqlx.Ext) error) error {

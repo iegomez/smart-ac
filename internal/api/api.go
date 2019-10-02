@@ -61,6 +61,7 @@ func setupAPI(conf config.Config) error {
 
 	pb.RegisterDeviceServiceServer(grpcServer, NewDeviceAPI())
 	pb.RegisterDatumServiceServer(grpcServer, NewDatumAPI())
+	pb.RegisterUserServiceServer(grpcServer, NewUserAPI())
 
 	// setup the client http interface variable
 	// we need to start the gRPC service first, as it is used by the
@@ -191,6 +192,9 @@ func getJSONGateway(ctx context.Context) (http.Handler, error) {
 	}
 	if err := pb.RegisterDatumServiceHandlerFromEndpoint(ctx, mux, apiEndpoint, grpcDialOpts); err != nil {
 		return nil, errors.Wrap(err, "register datum handler error")
+	}
+	if err := pb.RegisterUserServiceHandlerFromEndpoint(ctx, mux, apiEndpoint, grpcDialOpts); err != nil {
+		return nil, errors.Wrap(err, "register user handler error")
 	}
 
 	return mux, nil

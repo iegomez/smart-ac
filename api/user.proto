@@ -1,0 +1,191 @@
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+// UserService is the service managing the user access.
+service UserService {
+	// Get user list.
+	rpc List(ListUserRequest) returns (ListUserResponse) {
+		option(google.api.http) = {
+			get: "/api/users"
+		};
+	}
+
+	// Get data for a particular user.
+	rpc Get(GetUserRequest) returns (GetUserResponse) {
+		option(google.api.http) = {
+			get: "/api/users/{id}"
+		};
+	}
+
+	// Create a new user.
+	rpc Create(CreateUserRequest) returns (CreateUserResponse) {
+		option(google.api.http) = {
+			post: "/api/users"
+			body: "*"
+		};
+	}
+
+	// Update an existing user.
+	rpc Update(UpdateUserRequest) returns (google.protobuf.Empty) {
+		option(google.api.http) = {
+			put: "/api/users/{user.id}"
+			body: "*"
+		};
+	}
+
+	// Delete a user.
+	rpc Delete(DeleteUserRequest) returns (google.protobuf.Empty) {
+		option(google.api.http) = {
+			delete: "/api/users/{id}"
+		};
+	}
+
+	// UpdatePassword updates a password.
+	rpc UpdatePassword(UpdateUserPasswordRequest) returns (google.protobuf.Empty) {
+		option(google.api.http) = {
+			put: "/api/users/{user_id}/password"
+			body: "*"
+		};
+  }
+  
+  // Log in a user
+	rpc Login(LoginRequest) returns (LoginResponse) {
+		option(google.api.http) = {
+			post: "/api/internal/login"
+			body: "*"
+		};
+  }
+  
+  // Get the current user's profile
+	rpc Profile(google.protobuf.Empty) returns (ProfileResponse) {
+		option(google.api.http) = {
+			get: "/api/internal/profile"
+		};
+	}
+
+}
+
+message LoginRequest {
+	// Username of the user.
+	string username = 1;
+
+	// Password of the user.
+	string password = 2;
+}
+
+message LoginResponse {
+	// The JWT tag to be used to access admin capabilities.
+	string jwt = 1;
+}
+
+message ProfileResponse {
+  // User object.
+  User user = 1;
+}
+
+message User {
+	// User ID.
+	// Will be set automatically on create.
+	int64 id = 1;
+
+	// Username of the user.
+	string username = 2;
+
+	// The session timeout, in minutes.
+	int32 session_ttl = 3 [json_name = "sessionTTL"];
+
+	// Set to true to make the user a global administrator.
+	bool is_admin = 4;
+}
+
+message UserListItem {
+	// User ID.
+	// Will be set automatically on create.
+	int64 id = 1;
+
+	// Username of the user.
+	string username = 2;
+
+	// The session timeout, in minutes.
+	int32 session_ttl = 3 [json_name = "sessionTTL"];
+
+	// Set to true to make the user a global administrator.
+	bool is_admin = 4;
+
+	// Created at timestamp.
+	google.protobuf.Timestamp created_at = 5;
+
+	// Last update timestamp.
+	google.protobuf.Timestamp updated_at = 6;
+}
+
+message CreateUserRequest {
+	// User object to create.
+	User user = 1;
+
+	// Password of the user.
+	string password = 2;
+}
+
+message CreateUserResponse {
+	// User ID.
+	int64 id = 1;
+}
+
+message GetUserRequest {
+	// User ID.
+	int64 id = 1;
+}
+
+message GetUserResponse {
+	// User object.
+	User user = 1;
+
+	// Created at timestamp.
+	google.protobuf.Timestamp created_at = 2;
+
+	// Last update timestamp.
+	google.protobuf.Timestamp updated_at = 3;
+}
+
+message UpdateUserRequest {
+	// User object to update.
+	User user = 1;
+}
+
+message DeleteUserRequest {
+	// User ID.
+	int64 id = 1;
+}
+
+message ListUserRequest {
+	// Max number of user to return in the result-set.
+	int64 limit = 1;
+
+	// Offset in the result-set (for pagination).
+	int64 offset = 2;
+
+	// When provided, the given string will be used to search on username.
+	string search = 3;
+}
+
+message ListUserResponse {
+	// Total number of users.
+	int64 total_count = 1;
+
+	// Result-set.
+	repeated UserListItem result = 2;
+}
+
+message UpdateUserPasswordRequest {
+	// User ID.
+	int64 user_id = 1;
+
+	// New pasword.
+	string password = 2;
+}

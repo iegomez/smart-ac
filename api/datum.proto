@@ -103,6 +103,9 @@ message ListDataRequest {
   google.protobuf.Timestamp start_date = 3 [json_name = "startDate"];
   //End date.
   google.protobuf.Timestamp end_date = 4 [json_name = "endDate"];
+  //Filters is an array of sensor types. Valid values are: temperature, carbon_monoxide, air_humidity, health_status.
+  //For any sensor type not included in filters, the zero value (empty string for health status, 0.0 for the others) will be returned.
+  repeated string filters = 5 [json_name = "filters"];
 }
 
 // Request all data for a given device between 2 dates, with limit and offset.
@@ -116,6 +119,9 @@ message ListDataForDeviceRequest {
   google.protobuf.Timestamp start_date = 4 [json_name = "startDate"];
   //End date.
   google.protobuf.Timestamp end_date = 5 [json_name = "endDate"];
+  //Filters is an array of values to request. Valid values are: temperature, carbon_monoxide, air_humidity, health_status.
+  //For any value not included in filters, the zero value (empty string for health status, 0.0 for the others) will be returned.
+  repeated string filters = 6 [json_name = "filters"];
 }
 
 // 

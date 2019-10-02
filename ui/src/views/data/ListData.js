@@ -112,7 +112,6 @@ class ListData extends Component {
         <TitleBar>
         <TitleBarTitle title="Data" />
         </TitleBar>
-        <Link to="/">Go to Devices</Link>
         
         <Grid item xs={12}>
           <Select

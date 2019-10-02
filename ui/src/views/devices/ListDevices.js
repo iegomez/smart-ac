@@ -59,7 +59,6 @@ class ListDevices extends Component {
           <TitleBar>
           <TitleBarTitle title="Devices" />
           </TitleBar>
-          <Link to="/data">Go to Data</Link>
           <Button variant="outlined" className={this.props.classes.button} component={Link} to={`/devices/create`}>
             <Plus className={this.props.classes.icon} />
             Create

@@ -23,12 +23,17 @@ func NewDeviceAPI() *DeviceAPI {
 // Create creates the given device.
 func (a *DeviceAPI) Create(ctx context.Context, req *pb.CreateDeviceRequest) (*empty.Empty, error) {
 
+	isUser, err := GetIsUser(ctx)
+	if err != nil || !isUser {
+		return nil, helpers.ErrToRPCError(err)
+	}
+
 	d := storage.Device{
 		SerialNumber:    req.SerialNumber,
 		FirmwareVersion: req.FirmwareVersion,
 	}
 
-	err := storage.CreateDevice(storage.DB(), &d)
+	err = storage.CreateDevice(storage.DB(), &d)
 	if err != nil {
 		return nil, helpers.ErrToRPCError(err)
 	}
@@ -38,6 +43,11 @@ func (a *DeviceAPI) Create(ctx context.Context, req *pb.CreateDeviceRequest) (*e
 
 // Get retrieves a device given an id.
 func (a *DeviceAPI) Get(ctx context.Context, req *pb.DeviceRequest) (*pb.GetDeviceResponse, error) {
+
+	isUser, err := GetIsUser(ctx)
+	if err != nil || !isUser {
+		return nil, helpers.ErrToRPCError(err)
+	}
 
 	d, err := storage.GetDevice(storage.DB(), req.Id)
 	if err != nil {
@@ -62,6 +72,11 @@ func (a *DeviceAPI) Get(ctx context.Context, req *pb.DeviceRequest) (*pb.GetDevi
 // GetAPIKey retrieves a device's API key'.
 func (a *DeviceAPI) GetAPIKey(ctx context.Context, req *pb.DeviceRequest) (*pb.GetDeviceKeyResponse, error) {
 
+	isUser, err := GetIsUser(ctx)
+	if err != nil || !isUser {
+		return nil, helpers.ErrToRPCError(err)
+	}
+
 	d, err := storage.GetDevice(storage.DB(), req.Id)
 	if err != nil {
 		return nil, helpers.ErrToRPCError(err)
@@ -77,6 +92,11 @@ func (a *DeviceAPI) GetAPIKey(ctx context.Context, req *pb.DeviceRequest) (*pb.G
 
 // GetBySerialNumber retrieves a device given a serial number.
 func (a *DeviceAPI) GetBySerialNumber(ctx context.Context, req *pb.DeviceBySerialNumberRequest) (*pb.GetDeviceResponse, error) {
+
+	isUser, err := GetIsUser(ctx)
+	if err != nil || !isUser {
+		return nil, helpers.ErrToRPCError(err)
+	}
 
 	d, err := storage.GetDeviceBySerialNumber(storage.DB(), req.SerialNumber)
 	if err != nil {
@@ -100,6 +120,11 @@ func (a *DeviceAPI) GetBySerialNumber(ctx context.Context, req *pb.DeviceBySeria
 
 // List retrieves all devices given a limit and an offset.
 func (a *DeviceAPI) List(ctx context.Context, req *pb.ListDeviceRequest) (*pb.ListDeviceResponse, error) {
+
+	isUser, err := GetIsUser(ctx)
+	if err != nil || !isUser {
+		return nil, helpers.ErrToRPCError(err)
+	}
 
 	devices, err := storage.ListDevices(storage.DB(), req.Limit, req.Offset)
 	if err != nil {
@@ -136,6 +161,11 @@ func (a *DeviceAPI) List(ctx context.Context, req *pb.ListDeviceRequest) (*pb.Li
 // ListAll retrieves all devices.
 func (a *DeviceAPI) ListAll(ctx context.Context, req *empty.Empty) (*pb.ListDeviceResponse, error) {
 
+	isUser, err := GetIsUser(ctx)
+	if err != nil || !isUser {
+		return nil, helpers.ErrToRPCError(err)
+	}
+
 	count, err := storage.GetDeviceCount(storage.DB())
 	if err != nil {
 		return nil, err
@@ -170,12 +200,18 @@ func (a *DeviceAPI) ListAll(ctx context.Context, req *empty.Empty) (*pb.ListDevi
 
 //Update updates the given device.
 func (a *DeviceAPI) Update(ctx context.Context, req *pb.UpdateDeviceRequest) (*empty.Empty, error) {
+
+	isUser, err := GetIsUser(ctx)
+	if err != nil || !isUser {
+		return nil, helpers.ErrToRPCError(err)
+	}
+
 	device := &storage.Device{
 		ID:              req.Id,
 		SerialNumber:    req.SerialNumber,
 		FirmwareVersion: req.FirmwareVersion,
 	}
-	err := storage.UpdateDevice(storage.DB(), device)
+	err = storage.UpdateDevice(storage.DB(), device)
 	if err != nil {
 		return nil, helpers.ErrToRPCError(err)
 	}
@@ -184,6 +220,12 @@ func (a *DeviceAPI) Update(ctx context.Context, req *pb.UpdateDeviceRequest) (*e
 
 //UpdateAPIKey updates the given device.
 func (a *DeviceAPI) UpdateAPIKey(ctx context.Context, req *pb.DeviceRequest) (*pb.GetDeviceKeyResponse, error) {
+
+	isUser, err := GetIsUser(ctx)
+	if err != nil || !isUser {
+		return nil, helpers.ErrToRPCError(err)
+	}
+
 	key, err := storage.UpdateDeviceKey(storage.DB(), req.Id)
 	if err != nil {
 		return nil, helpers.ErrToRPCError(err)
@@ -195,7 +237,13 @@ func (a *DeviceAPI) UpdateAPIKey(ctx context.Context, req *pb.DeviceRequest) (*p
 
 //Delete deletes a device given an id.
 func (a *DeviceAPI) Delete(ctx context.Context, req *pb.DeviceRequest) (*empty.Empty, error) {
-	err := storage.DeleteDevice(storage.DB(), req.Id)
+
+	isUser, err := GetIsUser(ctx)
+	if err != nil || !isUser {
+		return nil, helpers.ErrToRPCError(err)
+	}
+
+	err = storage.DeleteDevice(storage.DB(), req.Id)
 	if err != nil {
 		return nil, helpers.ErrToRPCError(err)
 	}

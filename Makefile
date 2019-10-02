@@ -65,7 +65,7 @@ ui-requirements:
 	@cd ui && npm install
 
 serve: build
-	@echo "Starting Lora App Server"
+	@echo "Starting Smart AC"
 	./build/smart-ac
 
 update-vendor:
