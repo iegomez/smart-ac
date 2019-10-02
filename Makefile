@@ -4,7 +4,7 @@ VERSION := $(shell git describe --always |sed -e "s/^v//")
 
 build: ui/build internal/statics internal/migrations
 	mkdir -p build
-	go build $(GO_EXTRA_BUILD_ARGS) -ldflags "-s -w -X main.version=$(VERSION)" -o build/smart-ac cmd/main.go
+	go build $(GO_EXTRA_BUILD_ARGS) -ldflags "-s -w -X main.version=$(VERSION)" -o build/smart-ac cmd/smart-ac/main.go
 
 clean:
 	@echo "Cleaning up workspace"
