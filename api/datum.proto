@@ -38,6 +38,13 @@ service DatumService {
         };
     }
 
+    // ListForDeviceBySerialNumber returns the available data for a given device serial number.
+    rpc ListForDeviceBySerialNumber(ListDataForDeviceBySerialNumberRequest) returns (ListDataResponse) {
+      option (google.api.http) = {
+          get: "/api/devices/{serial_number}/data-by-serial"
+      };
+  }
+
     // Delete deletes the datum matching the given id.
     rpc Delete(DatumRequest) returns (google.protobuf.Empty) {
         option (google.api.http) = {
@@ -53,30 +60,28 @@ message GetDatumResponse {
   int64 id = 1 [json_name = "id"];
   // Device ID.
   int64 device_id = 2 [json_name = "deviceID"];
-  //Temperature as a float64.
-  double temperature = 3 [json_name = "temperature"];
-  //Carbon monoxide as a float 64.
-  double carbon_monoxide = 4 [json_name = "carbonMonoxide"];
-  //Air humidity percentage as a float64 between 0.0 and 1.0 included.
-  double air_humidity = 5 [json_name = "airHumidity"];
-  //UTF8 string of max 149 characters.
-  string health_status = 6 [json_name = "healthStatus"];
-  // Created at timestamp.
-  google.protobuf.Timestamp created_at = 7 [json_name = "createdAt"];
+  // Sensor type.
+  string sensor_type = 3 [json_name = "sensorType"];
+  // Numeric value.
+  double val = 4 [json_name = "val"];
+  // Stirng value.
+  string str_val = 5 [json_name = "strVal"];
+  // Datum's timestamp.
+  google.protobuf.Timestamp created_at = 6 [json_name = "createdAt"];
   // The device's serial number.
-  string serial_number = 8 [json_name = "serialNumber"];
+  string serial_number = 7 [json_name = "serialNumber"];
 }
 
 // How a datum sent by a device looks like.
 message Datum {
-  //Temperature as a float64.
-  double temperature = 2 [json_name = "temperature"];
-  //Carbon monoxide as a float 64.
-  double carbon_monoxide = 3 [json_name = "carbonMonoxide"];
-  //Air humidity percentage as a float64 between 0.0 and 1.0 included.
-  double air_humidity = 4 [json_name = "airHumidity"];
-  //UTF8 string of max 149 characters.
-  string health_status = 5 [json_name = "healthStatus"];
+  // Sensor type.
+  string sensor_type = 3 [json_name = "sensorType"];
+  // Numeric value.
+  double val = 4 [json_name = "val"];
+  // Stirng value.
+  string str_val = 5 [json_name = "strVal"];
+  // Datum's timestamp.
+  google.protobuf.Timestamp created_at = 6 [json_name = "createdAt"];
 }
 
 // To create data a device must send a request with it's serial number and the array of data.
@@ -104,7 +109,6 @@ message ListDataRequest {
   //End date.
   google.protobuf.Timestamp end_date = 4 [json_name = "endDate"];
   //Filters is an array of sensor types. Valid values are: temperature, carbon_monoxide, air_humidity, health_status.
-  //For any sensor type not included in filters, the zero value (empty string for health status, 0.0 for the others) will be returned.
   repeated string filters = 5 [json_name = "filters"];
 }
 
@@ -120,7 +124,21 @@ message ListDataForDeviceRequest {
   //End date.
   google.protobuf.Timestamp end_date = 5 [json_name = "endDate"];
   //Filters is an array of values to request. Valid values are: temperature, carbon_monoxide, air_humidity, health_status.
-  //For any value not included in filters, the zero value (empty string for health status, 0.0 for the others) will be returned.
+  repeated string filters = 6 [json_name = "filters"];
+}
+
+// Request all data for a given device between 2 dates, with limit and offset.
+message ListDataForDeviceBySerialNumberRequest {
+  string serial_number = 1 [json_name = "serial_number"];
+  // Max amount of data to retrieve.
+  int64 limit = 2 [json_name = "limit"];
+  // Offset for retrieving data.
+  int64 offset = 3 [json_name = "offset"];
+  //Start date.
+  google.protobuf.Timestamp start_date = 4 [json_name = "startDate"];
+  //End date.
+  google.protobuf.Timestamp end_date = 5 [json_name = "endDate"];
+  //Filters is an array of values to request. Valid values are: temperature, carbon_monoxide, air_humidity, health_status.
   repeated string filters = 6 [json_name = "filters"];
 }
 

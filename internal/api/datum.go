@@ -71,14 +71,20 @@ func (a *DatumAPI) Create(ctx context.Context, req *pb.CreateDataRequest) (*empt
 	}
 
 	data := make([]storage.Datum, len(req.Data))
+	//var createdAt time.Time
 	for i, d := range req.Data {
 		data[i] = storage.Datum{
-			DeviceID:       device.ID,
-			Temperature:    d.Temperature,
-			CarbonMonoxide: d.CarbonMonoxide,
-			AirHumidity:    d.AirHumidity,
-			HealthStatus:   d.HealthStatus,
+			DeviceID:   device.ID,
+			SensorType: d.SensorType,
+			Val:        d.Val,
+			StrVal:     d.StrVal,
 		}
+		createdAt, err := ptypes.Timestamp(d.CreatedAt)
+		if err != nil {
+			log.Errorf("couldn't convert proto timestamp to time.Time: %s", err)
+			continue
+		}
+		data[i].CreatedAt = createdAt
 	}
 
 	err = storage.CreateData(storage.DB(), data, device.ID)
@@ -103,12 +109,11 @@ func (a *DatumAPI) Get(ctx context.Context, req *pb.DatumRequest) (*pb.GetDatumR
 	}
 
 	datum := &pb.GetDatumResponse{
-		Id:             d.ID,
-		DeviceId:       d.DeviceID,
-		Temperature:    d.Temperature,
-		CarbonMonoxide: d.CarbonMonoxide,
-		AirHumidity:    d.AirHumidity,
-		HealthStatus:   d.HealthStatus,
+		Id:         d.ID,
+		DeviceId:   d.DeviceID,
+		SensorType: d.SensorType,
+		Val:        d.Val,
+		StrVal:     d.StrVal,
 	}
 
 	datum.CreatedAt, err = ptypes.TimestampProto(d.CreatedAt)
@@ -138,14 +143,14 @@ func (a *DatumAPI) List(ctx context.Context, req *pb.ListDataRequest) (*pb.ListD
 		return nil, helpers.ErrToRPCError(err)
 	}
 
-	data, err := storage.ListData(storage.DB(), startDate, endDate, req.Limit, req.Offset)
+	data, err := storage.ListData(storage.DB(), startDate, endDate, req.Limit, req.Offset, req.Filters)
 	if err != nil {
 		return nil, helpers.ErrToRPCError(err)
 	}
 
-	count, err := storage.GetDatumCount(storage.DB(), startDate, endDate)
+	count, err := storage.GetDatumCount(storage.DB(), startDate, endDate, req.Filters)
 	if err != nil {
-		return nil, err
+		return nil, helpers.ErrToRPCError(err)
 	}
 
 	resp := &pb.ListDataResponse{
@@ -155,13 +160,12 @@ func (a *DatumAPI) List(ctx context.Context, req *pb.ListDataRequest) (*pb.ListD
 
 	for i, d := range data {
 		resp.Result[i] = &pb.GetDatumResponse{
-			Id:             d.ID,
-			DeviceId:       d.DeviceID,
-			Temperature:    d.Temperature,
-			CarbonMonoxide: d.CarbonMonoxide,
-			AirHumidity:    d.AirHumidity,
-			HealthStatus:   d.HealthStatus,
-			SerialNumber:   d.SerialNumber,
+			Id:           d.ID,
+			DeviceId:     d.DeviceID,
+			SensorType:   d.SensorType,
+			Val:          d.Val,
+			StrVal:       d.StrVal,
+			SerialNumber: d.SerialNumber,
 		}
 		resp.Result[i].CreatedAt, err = ptypes.TimestampProto(d.CreatedAt)
 		if err != nil {
@@ -182,22 +186,22 @@ func (a *DatumAPI) ListForDevice(ctx context.Context, req *pb.ListDataForDeviceR
 
 	startDate, err := ptypes.Timestamp(req.StartDate)
 	if err != nil {
-		return nil, err
+		return nil, helpers.ErrToRPCError(err)
 	}
 
 	endDate, err := ptypes.Timestamp(req.EndDate)
 	if err != nil {
-		return nil, err
+		return nil, helpers.ErrToRPCError(err)
 	}
 
-	data, err := storage.ListDataForDevice(storage.DB(), req.DeviceId, startDate, endDate, req.Limit, req.Offset)
+	data, err := storage.ListDataForDevice(storage.DB(), req.DeviceId, startDate, endDate, req.Limit, req.Offset, req.Filters)
 	if err != nil {
-		return nil, err
+		return nil, helpers.ErrToRPCError(err)
 	}
 
-	count, err := storage.GetDatumCountForDevice(storage.DB(), req.DeviceId, startDate, endDate)
+	count, err := storage.GetDatumCountForDevice(storage.DB(), req.DeviceId, startDate, endDate, req.Filters)
 	if err != nil {
-		return nil, err
+		return nil, helpers.ErrToRPCError(err)
 	}
 
 	resp := &pb.ListDataResponse{
@@ -207,12 +211,67 @@ func (a *DatumAPI) ListForDevice(ctx context.Context, req *pb.ListDataForDeviceR
 
 	for i, d := range data {
 		resp.Result[i] = &pb.GetDatumResponse{
-			Id:             d.ID,
-			DeviceId:       d.DeviceID,
-			Temperature:    d.Temperature,
-			CarbonMonoxide: d.CarbonMonoxide,
-			AirHumidity:    d.AirHumidity,
-			HealthStatus:   d.HealthStatus,
+			Id:         d.ID,
+			DeviceId:   d.DeviceID,
+			SensorType: d.SensorType,
+			Val:        d.Val,
+			StrVal:     d.StrVal,
+		}
+		resp.Result[i].CreatedAt, err = ptypes.TimestampProto(d.CreatedAt)
+		if err != nil {
+			return nil, helpers.ErrToRPCError(err)
+		}
+	}
+
+	return resp, nil
+
+}
+
+// ListForDevice retrieves all data for a given device between a start and an end date, given a limit and an offset.
+func (a *DatumAPI) ListForDeviceBySerialNumber(ctx context.Context, req *pb.ListDataForDeviceBySerialNumberRequest) (*pb.ListDataResponse, error) {
+
+	isUser, err := GetIsUser(ctx)
+	if err != nil || !isUser {
+		return nil, helpers.ErrToRPCError(err)
+	}
+
+	startDate, err := ptypes.Timestamp(req.StartDate)
+	if err != nil {
+		return nil, helpers.ErrToRPCError(err)
+	}
+
+	endDate, err := ptypes.Timestamp(req.EndDate)
+	if err != nil {
+		return nil, helpers.ErrToRPCError(err)
+	}
+
+	device, err := storage.GetDeviceBySerialNumber(storage.DB(), req.SerialNumber)
+	if err != nil {
+		return nil, helpers.ErrToRPCError(err)
+	}
+
+	data, err := storage.ListDataForDevice(storage.DB(), device.ID, startDate, endDate, req.Limit, req.Offset, req.Filters)
+	if err != nil {
+		return nil, helpers.ErrToRPCError(err)
+	}
+
+	count, err := storage.GetDatumCountForDevice(storage.DB(), device.ID, startDate, endDate, req.Filters)
+	if err != nil {
+		return nil, helpers.ErrToRPCError(err)
+	}
+
+	resp := &pb.ListDataResponse{
+		TotalCount: count,
+		Result:     make([]*pb.GetDatumResponse, len(data)),
+	}
+
+	for i, d := range data {
+		resp.Result[i] = &pb.GetDatumResponse{
+			Id:         d.ID,
+			DeviceId:   d.DeviceID,
+			SensorType: d.SensorType,
+			Val:        d.Val,
+			StrVal:     d.StrVal,
 		}
 		resp.Result[i].CreatedAt, err = ptypes.TimestampProto(d.CreatedAt)
 		if err != nil {

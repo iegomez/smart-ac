@@ -38,39 +38,35 @@ class ListData extends Component {
   }
 
 
-  getPage(limit, offset, startDate, endDate, callbackFunc) {
+  getPage(limit, offset, startDate, endDate, filters, callbackFunc) {
     if(this.state.deviceID > 0) {
-      DatumStore.listForDevice(this.state.deviceID, startDate, endDate, limit, offset, callbackFunc);
+      DatumStore.listForDevice(this.state.deviceID, startDate, endDate, limit, offset, filters, callbackFunc);
     } else {
-      DatumStore.list(startDate, endDate, limit, offset, callbackFunc);
+      DatumStore.list(startDate, endDate, limit, offset, filters, callbackFunc);
     }
   }
 
   getRow(obj) {
 
-    let airHumidity = (100.0 * obj.airHumidity) + "%";
+    const val = obj.sensorType == "health_status" ? obj.strVal : obj.val;
     //Add device serial number if we're listing all data.
     if(this.state.deviceID > 0) {
       return (
         <TableRow key={obj.id}>
           <TableCell>{obj.id}</TableCell>
           <TableCell>{obj.createdAt}</TableCell>
-          <TableCell>{obj.temperature}</TableCell>
-          <TableCell>{airHumidity}</TableCell>
-          <TableCell>{obj.carbonMonoxide}</TableCell>
-          <TableCell>{obj.healthStatus}</TableCell>
+          <TableCell>{obj.sensorType}</TableCell>
+          <TableCell>{obj.val}</TableCell>
         </TableRow>
       );
     }
     return(
       <TableRow key={obj.id}>
         <TableCell>{obj.id}</TableCell>
-        <TableCellLink to={`/devices/${obj.id}`}>{obj.serialNumber}</TableCellLink>
+        <TableCellLink to={`/devices/${obj.deviceID}`}>{obj.serialNumber}</TableCellLink>
         <TableCell>{obj.createdAt}</TableCell>
-        <TableCell>{obj.temperature}</TableCell>
-        <TableCell>{airHumidity}</TableCell>
-        <TableCell>{obj.carbonMonoxide}</TableCell>
-        <TableCell>{obj.healthStatus}</TableCell>
+        <TableCell>{obj.sensorType}</TableCell>
+        <TableCell>{obj.val}</TableCell>
       </TableRow>
     );
 
@@ -89,20 +85,16 @@ class ListData extends Component {
       <TableRow>
         <TableCell>ID</TableCell>
         <TableCell>Created At</TableCell>
-        <TableCell>Temperature</TableCell>
-        <TableCell>Air Humidity</TableCell>
-        <TableCell>Carbon Monoxide Level</TableCell>
-        <TableCell>Health Status</TableCell>
+        <TableCell>Sensor type</TableCell>
+        <TableCell>Value</TableCell>
       </TableRow>
       :
       <TableRow>
         <TableCell>ID</TableCell>
         <TableCell>Device</TableCell>
         <TableCell>Created At</TableCell>
-        <TableCell>Temperature</TableCell>
-        <TableCell>Air Humidity</TableCell>
-        <TableCell>Carbon Monoxide Level</TableCell>
-        <TableCell>Health Status</TableCell>
+        <TableCell>Sensor type</TableCell>
+        <TableCell>Value</TableCell>
       </TableRow>;
 
     const devices = this.state.devices.map((device, i) => <MenuItem key={device.id} value={device.id}>{device.serialNumber}</MenuItem>);    

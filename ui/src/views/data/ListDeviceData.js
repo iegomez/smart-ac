@@ -26,23 +26,21 @@ class ListData extends Component {
   }
 
 
-  getPage(limit, offset, startDate, endDate, callbackFunc) {
+  getPage(limit, offset, startDate, endDate, filters, callbackFunc) {
     if (this.props.device !== undefined) {
-      DatumStore.listForDevice(this.props.device.id, startDate, endDate, limit, offset, callbackFunc);
+      DatumStore.listForDevice(this.props.device.id, startDate, endDate, limit, offset, filters, callbackFunc);
     }
   }
 
   getRow(obj) {
 
-    let airHumidity = (100.0 * obj.airHumidity) + "%";
+    const val = obj.sensorType == "health_status" ? obj.strVal : obj.val;
     return (
       <TableRow key={obj.id}>
         <TableCell>{obj.id}</TableCell>
         <TableCell>{obj.createdAt}</TableCell>
-        <TableCell>{obj.temperature}</TableCell>
-        <TableCell>{airHumidity}</TableCell>
-        <TableCell>{obj.carbonMonoxide}</TableCell>
-        <TableCell>{obj.healthStatus}</TableCell>
+        <TableCell>{obj.sensorType}</TableCell>
+        <TableCell>{obj.val}</TableCell>
       </TableRow>
     );
   }
@@ -54,10 +52,8 @@ class ListData extends Component {
       <TableRow>
         <TableCell>ID</TableCell>
         <TableCell>Created At</TableCell>
-        <TableCell>Temperature</TableCell>
-        <TableCell>Air Humidity</TableCell>
-        <TableCell>Carbon Monoxide Level</TableCell>
-        <TableCell>Health Status</TableCell>
+        <TableCell>Sensor type</TableCell>
+        <TableCell>Value</TableCell>
       </TableRow>;
 
     return (

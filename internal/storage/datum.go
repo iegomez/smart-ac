@@ -2,6 +2,7 @@ package storage
 
 import (
 	"database/sql"
+	"strings"
 	"time"
 	"unicode/utf8"
 
@@ -13,21 +14,28 @@ import (
 
 //Datum holds a message from a device.
 type Datum struct {
-	ID             int64     `db:"id"`
-	DeviceID       int64     `db:"device_id"`
-	Temperature    float64   `db:"temperature"`
-	CarbonMonoxide float64   `db:"carbon_monoxide"`
-	AirHumidity    float64   `db:"air_humidity"`
-	HealthStatus   string    `db:"health_status"`
-	CreatedAt      time.Time `db:"created_at"`
+	ID         int64     `db:"id"`
+	DeviceID   int64     `db:"device_id"`
+	SensorType string    `db:"sensor_type"`
+	Val        float64   `db:"val"`
+	StrVal     string    `db:"str_val"`
+	CreatedAt  time.Time `db:"created_at"`
 }
 
-var allowedFilters = map[string]bool{
+var sensorTypes = map[string]bool{
 	"temperature":     true,
 	"carbon_monoxide": true,
 	"air_humidity":    true,
 	"health_status":   true,
 }
+
+// Sensor types constants.
+const (
+	Temperature    string = "temperature"
+	CarbonMonoxide string = "carbon_monoxide"
+	AirHumidity    string = "air_humidity"
+	HealthStatus   string = "health_status"
+)
 
 //DatumWithSerial holds a datum and the associated device's serial number.
 type DatumWithSerial struct {
@@ -35,12 +43,21 @@ type DatumWithSerial struct {
 	SerialNumber string `db:"serial_number"`
 }
 
-//Validate checks that a datum is associated to a datum, air humidity is a float in the [0.0, 1.0] range and the health status length is less than 150.
-func (d Datum) Validate() error {
-	if d.AirHumidity < 0.0 || d.AirHumidity > 1.0 {
+//Validate checks that the sensor type is correct, air humidity is a float in the [0.0, 1.0] range, health status' length is less than 150.
+//It also zero values unused vals (e.g., if sensor type is health status, then val is set to 0).
+func (d *Datum) Validate() error {
+	if _, ok := sensorTypes[d.SensorType]; !ok {
+		return errors.Errorf("unkwown sensor type %s", d.SensorType)
+	}
+	if d.SensorType == HealthStatus {
+		d.Val = 0.0
+	} else {
+		d.StrVal = ""
+	}
+	if d.SensorType == AirHumidity && (d.Val < 0.0 || d.Val > 1.0) {
 		return errors.New("air humidity must be in [0.0, 1.0]")
 	}
-	if utf8.RuneCountInString(d.HealthStatus) >= 150 {
+	if d.SensorType == HealthStatus && utf8.RuneCountInString(d.StrVal) >= 150 {
 		return errors.New("health status must be shorter than 150 characters")
 	}
 	return nil
@@ -48,31 +65,38 @@ func (d Datum) Validate() error {
 
 //CreateData adds all given data records to the DB.
 //Since data may be one message or several, we use a common approach of accepting a data slice and bulk insert them, logging any error and continuing to insert the remaining data.
-func CreateData(db *sqlx.DB, data []Datum, id int64) error {
+func CreateData(db *sqlx.DB, data []Datum, deviceID int64) error {
 
 	txn, err := db.Begin()
 	if err != nil {
 		return err
 	}
 
-	stmt, err := txn.Prepare(pq.CopyIn("datum", "device_id", "temperature", "carbon_monoxide", "air_humidity", "health_status", "created_at"))
+	stmt, err := txn.Prepare(pq.CopyIn("datum", "device_id", "sensor_type", "val", "str_val", "created_at"))
 	if err != nil {
 		return err
 	}
 
-	//Requirements say that data may be sent on batches of at most 500 values.
-	if len(data) > 500 {
-		data = data[:500]
+	//Requirements say that data for each sensor may be sent on batches of at most 500 value, so we need to keep count of them while preparing the copy and discard those that are past the limit.
+	counts := map[string]int{
+		Temperature:    0,
+		CarbonMonoxide: 0,
+		AirHumidity:    0,
+		HealthStatus:   0,
 	}
 
 	for _, d := range data {
 		if err := d.Validate(); err != nil {
-			log.Errorf("couldn't insert datum for device %d: %#v\n", id, d)
+			log.Errorf("couldn't insert datum for device %d: %#v\n", deviceID, d)
 			continue
 		}
-		_, err = stmt.Exec(id, d.Temperature, d.CarbonMonoxide, d.AirHumidity, d.HealthStatus, time.Now())
+		counts[d.SensorType]++
+		if counts[d.SensorType] > 500 {
+			continue
+		}
+		_, err = stmt.Exec(deviceID, d.SensorType, d.Val, d.StrVal, d.CreatedAt)
 		if err != nil {
-			log.Errorf("couldn't insert datum for device %d: %#v\n", id, d)
+			log.Errorf("couldn't insert datum for device %d: %#v\n", deviceID, d)
 		}
 	}
 
@@ -114,19 +138,21 @@ func GetDatum(db *sqlx.DB, id int64) (Datum, error) {
 }
 
 //GetDatumCount returns the count of all data.
-func GetDatumCount(db *sqlx.DB, startDate, endDate time.Time) (int64, error) {
+func GetDatumCount(db *sqlx.DB, startDate, endDate time.Time, sensors []string) (int64, error) {
 	var count int64
-	err := db.Get(&count, `select count(id) from datum where created_at >= $1 and created_at <= $2`, startDate, endDate)
+	filter := "{" + strings.Join(sensors, ",") + "}"
+	err := db.Get(&count, `select count(id) from datum where sensor_type = any($3::text[]) and created_at >= $1 and created_at <= $2`, startDate, endDate, filter)
 	if err != nil {
 		return 0, err
 	}
 	return count, nil
 }
 
-//ListData retrieves all data.
-func ListData(db *sqlx.DB, startDate, endDate time.Time, limit, offset int64) ([]DatumWithSerial, error) {
+//ListData retrieves all data filtered by sensor type.
+func ListData(db *sqlx.DB, startDate, endDate time.Time, limit, offset int64, sensors []string) ([]DatumWithSerial, error) {
 	var data []DatumWithSerial
-	err := db.Select(&data, `select dat.*, dev.serial_number from datum as dat, device as dev where dat.device_id = dev.id and dat.created_at >= $1 and dat.created_at <= $2 order by dat.created_at desc limit $3 offset $4`, startDate, endDate, limit, offset)
+	filter := "{" + strings.Join(sensors, ",") + "}"
+	err := db.Select(&data, `select dat.*, dev.serial_number from datum as dat, device as dev where dat.sensor_type = any($5::text[]) and dat.device_id = dev.id and dat.created_at >= $1 and dat.created_at <= $2 order by dat.created_at desc limit $3 offset $4`, startDate, endDate, limit, offset, filter)
 	if err != nil {
 		return nil, handlePSQLError(Select, err, "select error")
 	}
@@ -134,9 +160,10 @@ func ListData(db *sqlx.DB, startDate, endDate time.Time, limit, offset int64) ([
 }
 
 //GetDatumCountForDevice returns the count of all data for a given device id.
-func GetDatumCountForDevice(db *sqlx.DB, deviceID int64, startDate, endDate time.Time) (int64, error) {
+func GetDatumCountForDevice(db *sqlx.DB, deviceID int64, startDate, endDate time.Time, sensors []string) (int64, error) {
 	var count int64
-	err := db.Get(&count, `select count(id) from datum where device_id = $1 and created_at >= $2 and created_at <= $3`, deviceID, startDate, endDate)
+	filter := "{" + strings.Join(sensors, ",") + "}"
+	err := db.Get(&count, `select count(id) from datum where sensor_type = any($4::text[]) and device_id = $1 and created_at >= $2 and created_at <= $3`, deviceID, startDate, endDate, filter)
 	if err != nil {
 		return 0, err
 	}
@@ -144,9 +171,10 @@ func GetDatumCountForDevice(db *sqlx.DB, deviceID int64, startDate, endDate time
 }
 
 //ListDataForDevice retrieves all data for a given device id.
-func ListDataForDevice(db *sqlx.DB, deviceID int64, startDate, endDate time.Time, limit, offset int64) ([]Datum, error) {
+func ListDataForDevice(db *sqlx.DB, deviceID int64, startDate, endDate time.Time, limit, offset int64, sensors []string) ([]Datum, error) {
 	var data []Datum
-	err := db.Select(&data, `select * from datum where device_id = $1 and created_at >= $2 and created_at <= $3 order by created_at desc limit $4 offset $5`, deviceID, startDate, endDate, limit, offset)
+	filter := "{" + strings.Join(sensors, ",") + "}"
+	err := db.Select(&data, `select * from datum where sensor_type = any($6::text[]) and device_id = $1 and created_at >= $2 and created_at <= $3 order by created_at desc limit $4 offset $5`, deviceID, startDate, endDate, limit, offset, filter)
 	if err != nil {
 		return nil, handlePSQLError(Select, err, "select error")
 	}

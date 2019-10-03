@@ -62,7 +62,7 @@
           },
           {
             "name": "filters",
-            "description": "Filters is an array of sensor types. Valid values are: temperature, carbon_monoxide, air_humidity, health_status.\nFor any sensor type not included in filters, the zero value (empty string for health status, 0.0 for the others) will be returned.",
+            "description": "Filters is an array of sensor types. Valid values are: temperature, carbon_monoxide, air_humidity, health_status.",
             "in": "query",
             "required": false,
             "type": "array",
@@ -207,7 +207,74 @@
           },
           {
             "name": "filters",
-            "description": "Filters is an array of values to request. Valid values are: temperature, carbon_monoxide, air_humidity, health_status.\nFor any value not included in filters, the zero value (empty string for health status, 0.0 for the others) will be returned.",
+            "description": "Filters is an array of values to request. Valid values are: temperature, carbon_monoxide, air_humidity, health_status.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "DatumService"
+        ]
+      }
+    },
+    "/api/devices/{serial_number}/data-by-serial": {
+      "get": {
+        "summary": "ListForDeviceBySerialNumber returns the available data for a given device serial number.",
+        "operationId": "ListForDeviceBySerialNumber",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiListDataResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "serial_number",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "description": "Max amount of data to retrieve.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "offset",
+            "description": "Offset for retrieving data.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "startDate",
+            "description": "Start date.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "endDate",
+            "description": "End date.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "filters",
+            "description": "Filters is an array of values to request. Valid values are: temperature, carbon_monoxide, air_humidity, health_status.",
             "in": "query",
             "required": false,
             "type": "array",
@@ -243,24 +310,23 @@
     "apiDatum": {
       "type": "object",
       "properties": {
-        "temperature": {
-          "type": "number",
-          "format": "double",
-          "description": "Temperature as a float64."
-        },
-        "carbonMonoxide": {
-          "type": "number",
-          "format": "double",
-          "description": "Carbon monoxide as a float 64."
-        },
-        "airHumidity": {
-          "type": "number",
-          "format": "double",
-          "description": "Air humidity percentage as a float64 between 0.0 and 1.0 included."
-        },
-        "healthStatus": {
+        "sensorType": {
           "type": "string",
-          "description": "UTF8 string of max 149 characters."
+          "description": "Sensor type."
+        },
+        "val": {
+          "type": "number",
+          "format": "double",
+          "description": "Numeric value."
+        },
+        "strVal": {
+          "type": "string",
+          "description": "Stirng value."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datum's timestamp."
         }
       },
       "description": "How a datum sent by a device looks like."
@@ -278,29 +344,23 @@
           "format": "int64",
           "description": "Device ID."
         },
-        "temperature": {
-          "type": "number",
-          "format": "double",
-          "description": "Temperature as a float64."
-        },
-        "carbonMonoxide": {
-          "type": "number",
-          "format": "double",
-          "description": "Carbon monoxide as a float 64."
-        },
-        "airHumidity": {
-          "type": "number",
-          "format": "double",
-          "description": "Air humidity percentage as a float64 between 0.0 and 1.0 included."
-        },
-        "healthStatus": {
+        "sensorType": {
           "type": "string",
-          "description": "UTF8 string of max 149 characters."
+          "description": "Sensor type."
+        },
+        "val": {
+          "type": "number",
+          "format": "double",
+          "description": "Numeric value."
+        },
+        "strVal": {
+          "type": "string",
+          "description": "Stirng value."
         },
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "description": "Created at timestamp."
+          "description": "Datum's timestamp."
         },
         "serialNumber": {
           "type": "string",

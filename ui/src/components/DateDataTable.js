@@ -9,6 +9,9 @@ import CloudSearch from "mdi-material-ui/CloudSearch";
 import TitleBar from "./TitleBar";
 import TitleBarButton from "./TitleBarButton";
 import Paper from "./Paper";
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
 
 import moment from "moment";
 import { DateTimePicker } from "@material-ui/pickers";
@@ -31,6 +34,7 @@ class DateDataTable extends Component {
       },
       startDate: moment().subtract(90, "minutes").toISOString(),
       endDate: moment().toISOString(),
+      filters: ["temperature", "carbon_monoxide", "air_humidity", "health_status"],
     };
 
     this.onChangePage = this.onChangePage.bind(this);
@@ -38,6 +42,7 @@ class DateDataTable extends Component {
     this.onStartChange = this.onStartChange.bind(this);
     this.onEndChange = this.onEndChange.bind(this);
     this.onUpdate = this.onUpdate.bind(this);
+    this.onChangeFilter = this.onChangeFilter.bind(this);
   }
 
   componentDidMount() {
@@ -66,7 +71,7 @@ class DateDataTable extends Component {
 
   onUpdate() {
     //Go back to the first page.
-    this.props.getPage(this.state.rowsPerPage, 0, this.state.startDate, this.state.endDate, (result) => {
+    this.props.getPage(this.state.rowsPerPage, 0, this.state.startDate, this.state.endDate, this.state.filters, (result) => {
       this.setState({
         count: parseInt(result.totalCount, 10),
         rows: result.result.map((row, i) => this.props.getRow(row)),
@@ -75,7 +80,7 @@ class DateDataTable extends Component {
   }
 
   onChangePage(event, page) {
-    this.props.getPage(this.state.rowsPerPage, (page) * this.state.rowsPerPage, this.state.startDate, this.state.endDate, (result) => {
+    this.props.getPage(this.state.rowsPerPage, (page) * this.state.rowsPerPage, this.state.startDate, this.state.endDate, this.state.filters, (result) => {
       this.setState({
         page: page,
         count: parseInt(result.totalCount, 10),
@@ -98,6 +103,22 @@ class DateDataTable extends Component {
     });
   }
 
+  onChangeFilter(event) {
+    console.log(event.target.value, event.target.checked);
+    let filters = this.state.filters;
+    if (filters.includes(event.target.value, 0) && !event.target.checked) {
+      filters = filters.filter(function(value, index, arr){
+        return value !== event.target.value;
+    });
+    } else if(!filters.includes(event.target.value, 0) && event.target.checked) {
+      filters.push(event.target.value);
+    }
+    console.log(filters);
+    this.setState({
+      filters: filters,
+    });
+  }
+
   render() {
     if (this.state.rows === undefined) {
       return(<div></div>);
@@ -107,6 +128,34 @@ class DateDataTable extends Component {
       <Paper>
         <TitleBar key={1}
           buttons={[
+
+            <FormGroup row key={0}>
+              <FormControlLabel
+                control={
+                  <Checkbox checked={this.state.filters.includes("temperature", 0)} onChange={this.onChangeFilter} value="temperature" />
+                }
+                label="Temperature"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox checked={this.state.filters.includes("carbon_monoxide", 0)} onChange={this.onChangeFilter} value="carbon_monoxide" />
+                }
+                label="Carbon Monoxide"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox checked={this.state.filters.includes("air_humidity", 0)} onChange={this.onChangeFilter} value="air_humidity" />
+                }
+                label="Air Humidity"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox checked={this.state.filters.includes("health_status", 0)} onChange={this.onChangeFilter} value="health_status" />
+                }
+                label="health Status"
+              />
+            </FormGroup>
+            ,
             <DateTimePicker 
               key={1} 
               value={this.state.startDate} 

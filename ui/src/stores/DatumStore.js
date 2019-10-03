@@ -39,13 +39,14 @@ class DatumStore extends EventEmitter {
     });
   }
 
-  list(startDate, endDate, limit, offset, callbackFunc) {
+  list(startDate, endDate, limit, offset, filters, callbackFunc) {
     this.swagger.then(client => {
       client.apis.DatumService.List({
         startDate: startDate,
         endDate: endDate,
         limit: limit,
         offset: offset,
+        filters: filters,
       })
       .then(checkStatus)
       .then(resp => {
@@ -55,7 +56,7 @@ class DatumStore extends EventEmitter {
     });
   }
 
-  listForDevice(deviceID, startDate, endDate, limit, offset, callbackFunc) {
+  listForDevice(deviceID, startDate, endDate, limit, offset, filters, callbackFunc) {
     this.swagger.then(client => {
       client.apis.DatumService.ListForDevice({
         device_id: deviceID,
@@ -63,6 +64,25 @@ class DatumStore extends EventEmitter {
         endDate: endDate,
         limit: limit,
         offset: offset,
+        filters: filters,
+      })
+      .then(checkStatus)
+      .then(resp => {
+        callbackFunc(resp.obj);
+      })
+      .catch(errorHandler);
+    });
+  }
+
+  listForDeviceBySerialNumber(serialNumber, startDate, endDate, limit, offset, filters, callbackFunc) {
+    this.swagger.then(client => {
+      client.apis.DatumService.ListForDeviceBySerialNumber({
+        serial_number: serialNumber,
+        startDate: startDate,
+        endDate: endDate,
+        limit: limit,
+        offset: offset,
+        filters: filters,
       })
       .then(checkStatus)
       .then(resp => {
