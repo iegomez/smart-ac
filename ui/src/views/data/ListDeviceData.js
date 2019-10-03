@@ -40,7 +40,7 @@ class ListData extends Component {
         <TableCell>{obj.id}</TableCell>
         <TableCell>{obj.createdAt}</TableCell>
         <TableCell>{obj.sensorType}</TableCell>
-        <TableCell>{obj.val}</TableCell>
+        <TableCell>{val}</TableCell>
       </TableRow>
     );
   }

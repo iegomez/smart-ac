@@ -56,7 +56,7 @@ class ListData extends Component {
           <TableCell>{obj.id}</TableCell>
           <TableCell>{obj.createdAt}</TableCell>
           <TableCell>{obj.sensorType}</TableCell>
-          <TableCell>{obj.val}</TableCell>
+          <TableCell>{val}</TableCell>
         </TableRow>
       );
     }
@@ -66,7 +66,7 @@ class ListData extends Component {
         <TableCellLink to={`/devices/${obj.deviceID}`}>{obj.serialNumber}</TableCellLink>
         <TableCell>{obj.createdAt}</TableCell>
         <TableCell>{obj.sensorType}</TableCell>
-        <TableCell>{obj.val}</TableCell>
+        <TableCell>{val}</TableCell>
       </TableRow>
     );
 

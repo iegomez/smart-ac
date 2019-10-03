@@ -9,4 +9,4 @@ create index idx_datum_created_at on datum(created_at);
 drop index idx_datum_created_at;
 
 alter table datum
-  drop colum created_at;
+  drop column created_at;

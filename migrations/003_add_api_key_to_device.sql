@@ -6,4 +6,4 @@ alter table device
 -- +migrate Down
 
 alter table device
-  drop colum api_key;
+  drop column api_key;

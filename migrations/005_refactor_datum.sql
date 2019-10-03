@@ -15,7 +15,7 @@ create index idx_datum_sensor_type on datum using gin (sensor_type gin_trgm_ops)
 -- +migrate Down
 
 drop index idx_datum_sensor_type;
-drop idx_user_username;
+drop index idx_user_username;
 alter table datum
   drop column sensor_type,
   drop column val,

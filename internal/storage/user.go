@@ -211,7 +211,7 @@ func UpdateUser(db sqlx.Execer, item UserUpdate) error {
 			username = $2,
 			is_admin = $3,
 			session_ttl = $4,
-			updated_at = now(),
+			updated_at = now()
 		where id = $1`,
 		item.ID,
 		item.Username,
