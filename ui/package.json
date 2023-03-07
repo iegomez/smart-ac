@@ -17,7 +17,7 @@
     "mdi-material-ui": "^6.2.0",
     "react-codemirror2": "^6.0.0",
     "react-router-dom": "^5.0.1",
-    "swagger-client": "^3.9.1",
+    "swagger-client": "^3.19.0",
     "typeface-roboto": "0.0.75",
     "whatwg-fetch": "^3.0.0"
   },
